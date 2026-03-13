@@ -55,33 +55,42 @@ const Register = () => {
   };
 
   return (
-    <div className="flex justify-center items-center py-10">
-      <div className="bg-black/80 p-8 border border-stranger-red neon-border max-w-lg w-full relative">
-        <h2 className="text-2xl uppercase tracking-widest text-center neon-text mb-8">Subject Registration</h2>
+    <div className="relative min-h-screen flex justify-center items-center py-10">
+       {/* Background Image with Overlay */}
+       <div 
+        className="fixed inset-0 z-0 bg-cover bg-no-repeat" 
+        style={{ backgroundImage: 'url("/login-bg.jpg")', backgroundPosition: 'center 15%' }}
+      >
+        <div className="absolute inset-0 bg-black/20"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/40"></div>
+      </div>
+
+      <div className="glass-card p-10 border border-stranger-red/30 neon-border max-w-lg w-full relative z-10 shadow-[0_0_50px_rgba(229,9,20,0.2)]">
+        <h2 className="text-3xl font-orbitron tracking-[0.2em] text-center neon-text mb-10">Subject Registration</h2>
 
         {error && (
-          <div className="bg-red-900/50 border border-red-500 text-white p-3 mb-6 text-sm text-center">
-            ERROR: {error}
+          <div className="bg-red-950/40 border border-red-500/50 text-red-200 p-4 mb-8 text-xs font-outfit text-center uppercase tracking-wider backdrop-blur-sm">
+            <span className="font-bold">Protocol Failure:</span> {error}
           </div>
         )}
 
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Full Record Name</label>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="grid grid-cols-2 gap-6">
+              <div className="group relative">
+                <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Record: Full Name</label>
                 <input
                   type="text"
-                  className="w-full bg-transparent border-b border-stranger-red p-2 text-white outline-none focus:border-white"
+                  className="w-full bg-transparent border-b border-stranger-red/40 p-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
                   value={formData.name}
                   onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                   required
                 />
               </div>
-              <div>
-                <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Codename (Username)</label>
+              <div className="group relative">
+                <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Codename: Username</label>
                 <input
                   type="text"
-                  className="w-full bg-transparent border-b border-stranger-red p-2 text-white outline-none focus:border-white"
+                  className="w-full bg-transparent border-b border-stranger-red/40 p-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
                   value={formData.userName}
                   onChange={(e) => setFormData({ ...formData, userName: e.target.value })}
                   required
@@ -89,33 +98,33 @@ const Register = () => {
               </div>
           </div>
           
-          <div>
-            <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Passcode</label>
+          <div className="group relative">
+            <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Security: Passcode</label>
             <input
               type="password"
-              className="w-full bg-transparent border-b border-stranger-red p-2 text-white outline-none focus:border-white"
+              className="w-full bg-transparent border-b border-stranger-red/40 p-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
               value={formData.password}
               onChange={(e) => setFormData({ ...formData, password: e.target.value })}
               required
             />
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Date of Birth</label>
+          <div className="grid grid-cols-2 gap-6">
+            <div className="group relative">
+              <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Record: Birth Date</label>
               <input
                 type="date"
-                className="w-full bg-transparent border-b border-stranger-red py-2 text-white outline-none focus:border-white"
+                className="w-full bg-transparent border-b border-stranger-red py-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
                 value={formData.dob}
                 onChange={(e) => setFormData({ ...formData, dob: e.target.value })}
                 required
               />
             </div>
-            <div>
-              <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Comms Number</label>
+            <div className="group relative">
+              <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Comms: Number</label>
               <input
                 type="tel"
-                className="w-full bg-transparent border-b border-stranger-red py-2 text-white outline-none focus:border-white"
+                className="w-full bg-transparent border-b border-stranger-red py-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 required
@@ -123,11 +132,11 @@ const Register = () => {
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs uppercase mb-1 tracking-widest text-gray-400">Email (Optional)</label>
+          <div className="group relative">
+            <label className="block text-[10px] uppercase mb-1 tracking-[0.2em] text-gray-400 font-outfit group-focus-within:text-stranger-red transition-colors">Secondary: Email (Optional)</label>
             <input
               type="email"
-              className="w-full bg-transparent border-b border-stranger-red p-2 text-white outline-none focus:border-white"
+              className="w-full bg-transparent border-b border-stranger-red/40 p-2 text-white font-outfit outline-none focus:border-stranger-red transition-all duration-300"
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
             />
@@ -173,15 +182,16 @@ const Register = () => {
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full py-4 mt-4 bg-stranger-red text-black uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50"
+            className="group relative w-full py-4 mt-8 bg-stranger-red text-black font-orbitron uppercase tracking-[0.3em] font-black hover:bg-white transition-all duration-500 disabled:opacity-50 overflow-hidden"
           >
-            {loading ? 'PROCESSING...' : 'INITIALIZE SUBJECT'}
+            <span className="relative z-10">{loading ? 'PROCESSING...' : 'Initialize Subject'}</span>
+            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
           </button>
         </form>
         
-        <div className="mt-6 text-center text-sm">
-          <Link to="/login" className="text-gray-500 hover:text-white transition-colors uppercase tracking-widest">
-            &lt; Return to Gate
+        <div className="mt-8 text-center text-[10px] font-outfit tracking-[0.2em]">
+          <Link to="/login" className="text-gray-500 hover:text-white transition-all duration-300 uppercase font-bold flex items-center justify-center gap-2 group">
+            <span className="group-hover:translate-x-[-4px] transition-transform duration-300">«</span> Return to Control Gate
           </Link>
         </div>
       </div>
