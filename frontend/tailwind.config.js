@@ -15,7 +15,9 @@ export default {
         }
       },
       fontFamily: {
-        'retro': ['"Courier New"', 'Courier', 'monospace'],
+        'orbitron': ['"Orbitron"', 'sans-serif'],
+        'outfit': ['"Outfit"', 'sans-serif'],
+        'retro': ['"Orbitron"', 'sans-serif'],
       }
     },
   },

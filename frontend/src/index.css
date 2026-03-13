@@ -4,32 +4,73 @@
 
 @layer base {
   body {
-    @apply bg-stranger-bg text-red-500 font-retro;
-    background-color: #0a0a0c;
-    color: #e50914; /* Default text red */
+    @apply bg-stranger-bg text-red-500;
+    font-family: 'Outfit', sans-serif;
+    background-color: #050507;
+    color: #e50914;
     overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, .font-title {
+    @apply tracking-widest uppercase;
+    font-family: 'Orbitron', sans-serif;
   }
 }
 
 @layer utilities {
   .neon-text {
+    color: #e50914;
     text-shadow: 
-      0 0 5px #fff,
-      0 0 10px #fff,
-      0 0 20px #e50914,
-      0 0 40px #e50914,
-      0 0 80px #e50914,
-      0 0 90px #e50914,
-      0 0 100px #e50914,
-      0 0 150px #e50914;
+      0 0 5px rgba(229, 9, 20, 0.8),
+      0 0 10px rgba(229, 9, 20, 0.5),
+      0 0 15px rgba(229, 9, 20, 0.3);
+  }
+
+  .stranger-title {
+    font-family: 'Orbitron', sans-serif;
+    color: transparent;
+    -webkit-text-stroke: 1px #e50914;
+    text-shadow: 0 0 10px rgba(229, 9, 20, 0.5);
+    letter-spacing: 0.3em;
+    font-weight: 900;
+    transition: all 0.5s ease;
+  }
+
+  .stranger-title:hover {
+    color: #e50914;
+    text-shadow: 0 0 20px #e50914, 0 0 40px #e50914;
+    -webkit-text-stroke: 1px transparent;
   }
   
   .neon-border {
-    box-shadow: 0 0 5px #e50914, 0 0 20px #e50914 inset;
-    border: 1px solid #e50914;
+    box-shadow: 0 0 5px rgba(229, 9, 20, 0.5), 0 0 15px rgba(229, 9, 20, 0.3) inset;
+    border: 1px solid rgba(229, 9, 20, 0.8);
+    backdrop-filter: blur(12px);
   }
 
-  /* CRT Scanline effect */
+  .glass-card {
+    background: rgba(10, 10, 12, 0.7);
+    backdrop-filter: blur(16px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  /* Custom Scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #0a0a0c;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #e50914;
+    border-radius: 10px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #ff003c;
+  }
+}
+
+  /* CRT Scanline effect - Cleaner & More Immersive */
   .crt::before {
     content: " ";
     display: block;
@@ -38,10 +79,12 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-    z-index: 2;
-    background-size: 100% 2px, 3px 100%;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
+                linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
+    z-index: 100;
+    background-size: 100% 3px, 3px 100%;
     pointer-events: none;
+    opacity: 0.5;
   }
   
   .crt::after {
@@ -52,13 +95,30 @@
     left: 0;
     bottom: 0;
     right: 0;
-    background: rgba(18, 16, 16, 0.1);
+    background: rgba(18, 16, 16, 0.05);
     opacity: 0;
-    z-index: 2;
+    z-index: 101;
     pointer-events: none;
-    animation: flicker 0.15s infinite;
+    animation: flicker 0.1s infinite;
   }
-}
+
+  .particles {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: url('https://www.transparenttextures.com/patterns/stardust.png');
+    z-index: 1;
+    pointer-events: none;
+    opacity: 0.15;
+    animation: drift 60s linear infinite;
+  }
+
+  @keyframes drift {
+    from { background-position: 0 0; }
+    to { background-position: 500px 1000px; }
+  }
 
 @keyframes flicker {
   0% { opacity: 0.02736; }
