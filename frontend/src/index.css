@@ -1,0 +1,85 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-stranger-bg text-red-500 font-retro;
+    background-color: #0a0a0c;
+    color: #e50914; /* Default text red */
+    overflow-x: hidden;
+  }
+}
+
+@layer utilities {
+  .neon-text {
+    text-shadow: 
+      0 0 5px #fff,
+      0 0 10px #fff,
+      0 0 20px #e50914,
+      0 0 40px #e50914,
+      0 0 80px #e50914,
+      0 0 90px #e50914,
+      0 0 100px #e50914,
+      0 0 150px #e50914;
+  }
+  
+  .neon-border {
+    box-shadow: 0 0 5px #e50914, 0 0 20px #e50914 inset;
+    border: 1px solid #e50914;
+  }
+
+  /* CRT Scanline effect */
+  .crt::before {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%), linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+    z-index: 2;
+    background-size: 100% 2px, 3px 100%;
+    pointer-events: none;
+  }
+  
+  .crt::after {
+    content: " ";
+    display: block;
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+    background: rgba(18, 16, 16, 0.1);
+    opacity: 0;
+    z-index: 2;
+    pointer-events: none;
+    animation: flicker 0.15s infinite;
+  }
+}
+
+@keyframes flicker {
+  0% { opacity: 0.02736; }
+  5% { opacity: 0.03467; }
+  10% { opacity: 0.0236; }
+  15% { opacity: 0.09056; }
+  20% { opacity: 0.01819; }
+  25% { opacity: 0.08331; }
+  30% { opacity: 0.06606; }
+  35% { opacity: 0.02778; }
+  40% { opacity: 0.08971; }
+  45% { opacity: 0.04618; }
+  50% { opacity: 0.02134; }
+  55% { opacity: 0.04268; }
+  60% { opacity: 0.01944; }
+  65% { opacity: 0.0264; }
+  70% { opacity: 0.03569; }
+  75% { opacity: 0.01258; }
+  80% { opacity: 0.07185; }
+  85% { opacity: 0.07008; }
+  90% { opacity: 0.01275; }
+  95% { opacity: 0.05391; }
+  100% { opacity: 0.0438; }
+}
