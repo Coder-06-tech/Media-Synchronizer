@@ -1,6 +1,6 @@
 import { useRef, useEffect, useState } from 'react';
 import ReactPlayer from 'react-player';
-import { Play, Pause, Volume2, VolumeX, Maximize, Settings, FileVideo } from 'lucide-react';
+import { Play, Pause, Volume2, VolumeX, Maximize, Settings, FileVideo, FastForward, Rewind } from 'lucide-react';
 
 const VideoPlayer = ({ 
     isBroadcaster, 
@@ -114,6 +114,24 @@ const VideoPlayer = ({
         onSeek(time);
     };
 
+    const handleSkip = (amount) => {
+        if (!isBroadcaster) return;
+        
+        let newTime;
+        if (isOnlineVideo && playerRef.current && typeof playerRef.current.getCurrentTime === 'function') {
+            newTime = playerRef.current.getCurrentTime() + amount;
+            playerRef.current.seekTo(newTime, 'seconds');
+        } else if (videoRef.current) {
+            newTime = videoRef.current.currentTime + amount;
+            videoRef.current.currentTime = newTime;
+        } else {
+            return;
+        }
+        
+        setCurrentTime(newTime);
+        onSeek(newTime);
+    };
+
     const toggleMute = () => {
         setIsMuted(!isMuted);
     };
@@ -142,7 +160,7 @@ const VideoPlayer = ({
     };
 
     return (
-        <div ref={containerRef} className="relative group bg-black border-2 border-stranger-red/50 overflow-hidden shadow-[0_0_30px_rgba(229,9,20,0.2)] ring-1 ring-stranger-red/20 aspect-video flex items-center justify-center">
+        <div ref={containerRef} className="relative group bg-black border-2 border-stranger-red/50 overflow-hidden shadow-[0_0_30px_rgba(229,9,20,0.2)] ring-1 ring-stranger-red/20 w-full h-full flex items-center justify-center">
             {!videoUrl && !remoteStream && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050507] z-10">
                     <div className="relative mb-6">
@@ -186,7 +204,7 @@ const VideoPlayer = ({
             )}
 
             {/* Custom Controls UI */}
-            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-6 transform translate-y-full group-hover:translate-y-0 transition-transform duration-500 ease-out z-20">
+            <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/95 via-black/70 to-transparent p-6 transition-all duration-500 ease-out z-20">
                 {/* Progress Bar */}
                 <div 
                     className={`w-full h-1.5 bg-gray-800 mb-6 cursor-pointer relative group/progress transition-all hover:h-2 ${!isBroadcaster && 'pointer-events-none'}`}
@@ -205,9 +223,17 @@ const VideoPlayer = ({
                 <div className="flex justify-between items-center text-white">
                     <div className="flex items-center gap-6">
                         {isBroadcaster ? (
-                            <button onClick={handlePlayPause} className="hover:text-stranger-red transition-all duration-300 focus:outline-none transform hover:scale-110">
-                                {isPlaying ? <Pause size={28} className="fill-current" /> : <Play size={28} className="fill-current" />}
-                            </button>
+                            <div className="flex items-center gap-4">
+                                <button onClick={() => handleSkip(-10)} className="hover:text-stranger-red transition-all duration-300 focus:outline-none transform hover:scale-110">
+                                    <Rewind size={20} className="fill-current opacity-80" />
+                                </button>
+                                <button onClick={handlePlayPause} className="hover:text-stranger-red transition-all duration-300 focus:outline-none transform hover:scale-110">
+                                    {isPlaying ? <Pause size={28} className="fill-current" /> : <Play size={28} className="fill-current" />}
+                                </button>
+                                <button onClick={() => handleSkip(10)} className="hover:text-stranger-red transition-all duration-300 focus:outline-none transform hover:scale-110">
+                                    <FastForward size={20} className="fill-current opacity-80" />
+                                </button>
+                            </div>
                         ) : (
                             <div className="text-[10px] font-orbitron tracking-[0.2em] text-stranger-red px-3 py-1 border border-stranger-red/30 bg-stranger-red/5">
                                 {playingState === 'playing' ? 'FEED: ACTIVE' : 'FEED: STALLED'}

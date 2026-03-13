@@ -106,13 +106,59 @@ const WatchRoom = () => {
             }
         });
 
-        socket.on('offer', async ({ offer, senderId }) => {
-            addLog(`Inbound signal from ${senderId.slice(-6)}`, 'system');
-            if (!isBroadcaster) {
-                const pc = createPeerConnection(senderId);
-                peerConnections.current[senderId] = pc;
+        // -------------------------------------------------------------
+        // NEW WEBRTC SIGNALING PATTERN (TannerGabriel Reference)
+        // -------------------------------------------------------------
+
+        // 1. Broadcaster Announces Feed is Active
+        socket.on('broadcaster_live', ({ broadcasterId }) => {
+            if (!isBroadcaster && !peerConnections.current[broadcasterId]) {
+                addLog(`Broadcaster feed available: Requesting Uplink`, 'warning');
+                // Listener asks for a connection
+                socket.emit('watcher_request', { roomId });
+            }
+        });
+
+        // 2. Broadcaster Receives Watcher Request & Initiates Offer
+        socket.on('watcher_request', async ({ watcherId }) => {
+            if (isBroadcaster && localStream) {
+                addLog(`Authorizing new watcher uplink: ${watcherId.slice(-6)}`, 'success');
+                activePeers.current.add(watcherId);
+                const pc = createPeerConnection(watcherId, localStream);
+                peerConnections.current[watcherId] = pc;
+                
                 try {
-                    await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                    const offer = await pc.createOffer();
+                    await pc.setLocalDescription(offer);
+                    socket.emit('offer', { roomId, offer, receiverId: watcherId });
+                } catch (err) {
+                    console.error("Offer creation failed", err);
+                }
+            }
+        });
+
+        // 3. Listener Receives Offer & Responds with Answer
+        socket.on('offer', async ({ offer, senderId }) => {
+            if (!isBroadcaster) {
+                addLog(`Inbound signal offer from Broadcaster`, 'system');
+                let pc = peerConnections.current[senderId];
+                
+                if (!pc) {
+                    pc = createPeerConnection(senderId);
+                    peerConnections.current[senderId] = pc;
+                }
+
+                try {
+                    if (pc.signalingState !== 'stable') {
+                        // Avoid InvalidStateError if offer arrives out of sequence
+                        await Promise.all([
+                            pc.setLocalDescription({type: "rollback"}),
+                            pc.setRemoteDescription(new RTCSessionDescription(offer))
+                        ]);
+                    } else {
+                        await pc.setRemoteDescription(new RTCSessionDescription(offer));
+                    }
+                    
                     const answer = await pc.createAnswer();
                     await pc.setLocalDescription(answer);
                     socket.emit('answer', { roomId, answer, receiverId: senderId });
@@ -122,6 +168,7 @@ const WatchRoom = () => {
             }
         });
 
+        // 4. Broadcaster Receives Answer & Finalizes
         socket.on('answer', async ({ answer, senderId }) => {
             const pc = peerConnections.current[senderId];
             if (pc && pc.signalingState !== 'stable') {
@@ -133,6 +180,7 @@ const WatchRoom = () => {
             }
         });
 
+        // 5. ICE Candidates for NAT Traversal
         socket.on('ice_candidate', async ({ candidate, senderId }) => {
             const pc = peerConnections.current[senderId];
             if (pc) {
@@ -300,14 +348,8 @@ const WatchRoom = () => {
                  addLog("LOCAL FILE SIGNAL UPLINK ACTIVE", "success");
                  socket.emit('play_video', { roomId, timestamp: 0, url: 'local_stream' });
                  
-                 // Blast offers to all currently active peer sockets
-                 activePeers.current.forEach(async (peerId) => {
-                     const pc = createPeerConnection(peerId, stream);
-                     peerConnections.current[peerId] = pc;
-                     const offer = await pc.createOffer();
-                     await pc.setLocalDescription(offer);
-                     socket.emit('offer', { roomId, offer, receiverId: peerId });
-                 });
+                 // Broadcast to all that the stream is ready
+                 socket.emit('broadcaster_live', { roomId });
              }
         });
     };
@@ -325,14 +367,8 @@ const WatchRoom = () => {
                 setCameraActive(true);
                 addLog("NEURAL CAMERA FEED ESTABLISHED", "success");
                 
-                // Blast offers to all currently active peer sockets
-                activePeers.current.forEach(async (peerId) => {
-                    const pc = createPeerConnection(peerId, stream);
-                    peerConnections.current[peerId] = pc;
-                    const offer = await pc.createOffer();
-                    await pc.setLocalDescription(offer);
-                    socket.emit('offer', { roomId, offer, receiverId: peerId });
-                });
+                // Announce that the camera feed is ready and waiting for watcher requests
+                socket.emit('broadcaster_live', { roomId });
             } catch (err) {
                 console.error("Camera failed", err);
                 addLog("CAMERA UPLINK FAILED: PERMISSION DENIED", "danger");
@@ -561,17 +597,7 @@ const WatchRoom = () => {
                             </div>
                         )}
 
-                        {/* WebRTC Overlay for Participants (Broadcaster's camera) */}
-                        {!isBroadcaster && Object.keys(remoteStreams).length > 0 && (
-                            <div className="absolute top-4 right-4 w-48 aspect-video border-2 border-gray-500 shadow-[0_0_20px_rgba(255,255,255,0.1)] z-30 bg-black overflow-hidden group/pip">
-                                {Object.entries(remoteStreams).map(([peerId, stream]) => (
-                                    <video key={peerId} ref={v => v && (v.srcObject = stream)} autoPlay playsInline className="w-full h-full object-cover" />
-                                ))}
-                                <div className="absolute inset-0 bg-white/5 opacity-0 group-hover/pip:opacity-100 transition-opacity pointer-events-none"></div>
-                                <div className="absolute bottom-1 left-2 text-[8px] font-orbitron text-gray-400 tracking-widest">BROADCASTER_UPLINK</div>
-                            </div>
-                        )}
-                        
+
                         {/* Broadcast Overlay Info */}
                         <div className="absolute top-4 left-4 z-20 pointer-events-none">
                             <div className="flex items-center gap-2 bg-black/60 backdrop-blur-md px-3 py-1.5 border border-white/10">

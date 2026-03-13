@@ -11,11 +11,20 @@ const setupSignalingSockets = (io, socket) => {
 
   // WebRTC Signaling
   socket.on('join_room', (data) => {
-    // Support both object { roomId, ... } and plain string formats
+  // Support both object { roomId, ... } and plain string formats
     const roomId = typeof data === 'object' ? data.roomId : data;
     socket.join(roomId);
     socket.to(roomId).emit('user_joined', { userId: socket.id });
     console.log(`User ${socket.id} joined room ${roomId}`);
+  });
+
+  // Explicit Broadcaster Handshake Flow (TannerGabriel pattern)
+  socket.on('broadcaster_live', (data) => {
+    socket.to(data.roomId).emit('broadcaster_live', { broadcasterId: socket.id });
+  });
+
+  socket.on('watcher_request', (data) => {
+    socket.to(data.roomId).emit('watcher_request', { watcherId: socket.id });
   });
 
   socket.on('offer', (data) => {

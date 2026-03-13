@@ -13,7 +13,7 @@ const Events = () => {
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [creating, setCreating] = useState(false);
   const { user } = useAuthStore();
-  const { friends } = useFriendStore();
+  const { friends, setFriends } = useFriendStore();
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
@@ -25,6 +25,9 @@ const Events = () => {
 
   useEffect(() => {
     fetchEvents();
+    if (friends.length === 0) {
+      api.get('/friends').then(({ data }) => setFriends(data)).catch(console.error);
+    }
   }, []);
 
   const fetchEvents = async () => {
@@ -74,6 +77,18 @@ const Events = () => {
   const formatDate = (dateStr) => {
     try { return format(parseISO(dateStr), 'MMM dd, yyyy'); }
     catch { return dateStr; }
+  };
+
+  const isTimeValid = (dateStr, timeStr) => {
+    try {
+      if (!dateStr || !timeStr) return false;
+      const cleanDate = dateStr.includes('T') ? dateStr.split('T')[0] : dateStr;
+      const eventStart = new Date(`${cleanDate}T${timeStr}`);
+      const now = new Date();
+      const diffMs = now - eventStart;
+      // Valid window: 15 minutes before till 3 hours after scheduled time
+      return diffMs >= -15 * 60000 && diffMs <= 3 * 60 * 60000;
+    } catch { return false; }
   };
 
   return (
@@ -152,15 +167,31 @@ const Events = () => {
                         <Radio size={14} style={{ display:'inline', marginRight:'6px' }} />
                         Initiate Broadcast
                       </button>
-                    ) : event.linkedWatchRoom ? (
-                       <button className={styles.btnPrimary} onClick={() => navigate(`/room/${event.linkedWatchRoom}`)}>
-                         Join Active Signal
-                       </button>
-                    ) : (
-                      <div className={styles.awaitBtn}>
-                        &gt; Awaiting host signal...
-                      </div>
-                    )}
+                    ) : (() => {
+                        const myResponse = event.responses?.find(r => r.user === user?._id)?.status || 'pending';
+                        if (myResponse === 'pending') {
+                            return <div className={styles.awaitBtn}>&gt; Awaiting your acceptance in Notifications</div>;
+                        }
+                        if (myResponse === 'declined') {
+                            return <div className={styles.awaitBtn}>&gt; Invitation Declined</div>;
+                        }
+                        
+                        // Status is Accepted
+                        const validTime = isTimeValid(event.date, event.time);
+                        if (!validTime) {
+                            return <div className={styles.awaitBtn}>&gt; Restricted: Window Locked Until Schedule</div>;
+                        }
+                        
+                        if (event.linkedWatchRoom) {
+                            return (
+                                <button className={styles.btnPrimary} onClick={() => navigate(`/room/${event.linkedWatchRoom}`)}>
+                                  Join Active Signal
+                                </button>
+                            );
+                        } else {
+                            return <div className={styles.awaitBtn}>&gt; Awaiting host signal...</div>;
+                        }
+                    })()}
                   </div>
                 </div>
               );
