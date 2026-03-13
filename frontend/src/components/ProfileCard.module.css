@@ -1,0 +1,201 @@
+.card {
+  background-color: var(--card-bg);
+  border-radius: 20px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  height: 100%;
+  padding: 30px 20px 20px;
+  color: var(--text-color);
+  position: relative;
+  
+  /* Glowing Requirements */
+  box-shadow: 0 0 20px var(--primary-color);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.glowOverlay {
+  position: absolute;
+  top: 0; left: 0; right: 0; bottom: 0;
+  pointer-events: none;
+  box-shadow: inset 0 0 30px rgba(255, 7, 58, 0.1);
+  border-radius: 20px;
+  z-index: 1;
+}
+
+.topSection {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 20px;
+  position: relative;
+  z-index: 2;
+}
+
+.avatarWrapper {
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border: 3px solid var(--primary-color);
+  background-color: var(--surface-color);
+  overflow: hidden;
+  box-shadow: 0 0 15px var(--primary-color), inset 0 0 10px rgba(255, 7, 58, 0.5);
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.middleSection {
+  text-align: center;
+  flex-grow: 1;
+  position: relative;
+  z-index: 2;
+}
+
+.name {
+  margin: 0 0 5px 0;
+  font-size: 1.6rem;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 0 10px var(--primary-color);
+  letter-spacing: 1px;
+}
+
+.dob {
+  margin: 0 0 5px 0;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+
+.friendsCount {
+  margin: 0 0 15px 0;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-muted);
+  letter-spacing: 1px;
+}
+
+.bottomSection {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  position: relative;
+  z-index: 2;
+}
+
+.viewProfileBtn, .friendBtn {
+  width: 100%;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  backdrop-filter: blur(5px);
+}
+
+.viewProfileBtn {
+  background-color: rgba(255, 7, 58, 0.1);
+  color: var(--primary-color);
+  border: 1px solid var(--border-color);
+  box-shadow: inset 0 0 5px rgba(255, 7, 58, 0.2);
+}
+
+.viewProfileBtn:hover {
+  background-color: rgba(255, 7, 58, 0.2);
+  box-shadow: var(--neon-glow-strong);
+  color: #fff;
+}
+
+.friendBtn {
+  color: white;
+}
+
+.addFriend {
+  background-color: rgba(255, 7, 58, 0.2);
+  border: 1px solid var(--primary-color);
+  color: var(--primary-color);
+}
+
+.addFriend:hover {
+  background-color: var(--primary-color);
+  color: var(--bg-color);
+  box-shadow: var(--neon-glow);
+}
+
+.sent {
+  background-color: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--text-muted);
+  color: var(--text-muted);
+  cursor: default;
+}
+
+.selected {
+  background-color: #fff;
+  color: #000;
+  box-shadow: 0 0 20px #fff;
+  border-color: #fff;
+}
+
+.actionGroup {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+}
+
+.acceptBtn, .declineBtn, .removeBtn {
+  flex: 1;
+  padding: 12px;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  font-family: inherit;
+}
+
+.acceptBtn {
+  background-color: var(--primary-color);
+  color: white;
+  box-shadow: 0 0 10px rgba(255, 7, 58, 0.3);
+}
+
+.acceptBtn:hover {
+  box-shadow: var(--neon-glow);
+  transform: translateY(-2px);
+}
+
+.declineBtn {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.declineBtn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+.removeBtn {
+  background-color: rgba(255, 0, 85, 0.1);
+  border: 1px solid var(--danger-color);
+  color: var(--danger-color);
+}
+
+.removeBtn:hover {
+  background-color: var(--danger-color);
+  color: white;
+  box-shadow: 0 0 15px var(--danger-color);
+}
+

@@ -7,13 +7,15 @@ const {
     getPendingRequests,
     getSentRequests,
     removeFriend,
-    getFriends
+    getFriends,
+    getFriendStatus
 } = require('../controllers/friendController');
 const { protect } = require('../middleware/authMiddleware');
 
 router.use(protect);
 
 router.get('/', getFriends);
+router.get('/status/:userId', getFriendStatus);
 router.post('/request', sendFriendRequest);
 router.get('/requests/pending', getPendingRequests);
 router.get('/requests/sent', getSentRequests);

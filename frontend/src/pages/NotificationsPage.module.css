@@ -1,0 +1,309 @@
+/* =========================================
+   SIGNALS PAGE — NotificationsPage.module.css
+   ========================================= */
+
+.container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+}
+
+/* ── HEADER ── */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  margin-bottom: 2rem;
+  padding-bottom: 1.25rem;
+  border-bottom: 1px solid var(--primary-color);
+}
+
+.eyebrow {
+  font-size: 0.65rem;
+  letter-spacing: 0.35em;
+  color: var(--primary-color);
+  opacity: 0.7;
+  text-transform: uppercase;
+  margin: 0 0 0.25rem;
+}
+
+.title {
+  font-size: clamp(2rem, 6vw, 3rem);
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: #fff;
+  text-shadow:
+    0 0 8px rgba(255, 7, 58, 0.8),
+    0 0 20px rgba(255, 7, 58, 0.4);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  line-height: 1;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-color);
+  color: #000;
+  font-size: 0.75rem;
+  font-weight: 900;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  vertical-align: middle;
+  animation: pulseBadge 2s ease-in-out infinite;
+}
+
+@keyframes pulseBadge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 7, 58, 0.6); }
+  50%       { box-shadow: 0 0 0 8px rgba(255, 7, 58, 0); }
+}
+
+.subtitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  margin: 0.4rem 0 0;
+}
+
+.clearBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: transparent;
+  border: 1px solid rgba(255, 7, 58, 0.4);
+  color: var(--text-muted);
+  padding: 0.5rem 1rem;
+  font-size: 0.65rem;
+  font-weight: 700;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.clearBtn:hover {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+  box-shadow: 0 0 12px rgba(255, 7, 58, 0.2);
+}
+
+/* ── LIST ── */
+.notifList {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+/* ── NOTIFICATION CARD ── */
+.notifCard {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  background: rgba(0, 0, 0, 0.5);
+  border: 1px solid rgba(255, 7, 58, 0.12);
+  position: relative;
+  transition: border-color 0.25s, box-shadow 0.25s;
+  overflow: hidden;
+}
+
+.notifCard:hover {
+  border-color: rgba(255, 7, 58, 0.35);
+}
+
+/* Scanline micro-texture */
+.notifCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent, transparent 3px,
+    rgba(0, 0, 0, 0.04) 3px, rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+}
+
+.unread {
+  border-left: 3px solid var(--primary-color);
+  box-shadow: 0 0 16px rgba(255, 7, 58, 0.07);
+}
+
+.read {
+  opacity: 0.55;
+}
+
+/* Active ping dot */
+.activePing {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  animation: ping 1.5s ease-in-out infinite;
+}
+
+@keyframes ping {
+  0%   { transform: scale(1); opacity: 1; }
+  70%  { transform: scale(1.8); opacity: 0; }
+  100% { transform: scale(1); opacity: 0; }
+}
+
+/* ── ICON ── */
+.notifIconWrap {
+  width: 40px;
+  height: 40px;
+  border: 1px solid rgba(255, 7, 58, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+/* ── CONTENT ── */
+.notifContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.notifType {
+  font-size: 0.6rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  opacity: 0.7;
+  display: block;
+  margin-bottom: 0.3rem;
+}
+
+.notifMessage {
+  font-size: 0.9rem;
+  color: #fff;
+  margin: 0 0 0.3rem;
+  line-height: 1.45;
+}
+
+.notifTime {
+  font-size: 0.68rem;
+  color: var(--text-muted);
+  letter-spacing: 0.1em;
+  display: block;
+  margin-bottom: 0.75rem;
+}
+
+/* ── ACTIONS ── */
+.actions {
+  display: flex;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+}
+
+.acceptBtn, .declineBtn {
+  padding: 0.45rem 1.2rem;
+  font-family: inherit;
+  font-weight: 800;
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-transform: uppercase;
+}
+
+.acceptBtn {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.acceptBtn:hover:not(:disabled) {
+  background: #fff;
+  box-shadow: 0 0 14px rgba(255, 7, 58, 0.5);
+}
+
+.acceptBtn:disabled, .declineBtn:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+.declineBtn {
+  background: transparent;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: rgba(255, 255, 255, 0.5);
+}
+
+.declineBtn:hover:not(:disabled) {
+  border-color: rgba(255, 255, 255, 0.4);
+  color: #fff;
+}
+
+/* ── SKELETON LOADER ── */
+.skeleton {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  border: 1px solid rgba(255, 7, 58, 0.08);
+  background: rgba(0, 0, 0, 0.3);
+  animation: shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0%, 100% { opacity: 0.5; }
+  50%       { opacity: 1; }
+}
+
+.skeletonIcon {
+  width: 40px;
+  height: 40px;
+  background: rgba(255, 7, 58, 0.1);
+  flex-shrink: 0;
+}
+
+.skeletonBody {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.skeletonLine {
+  height: 10px;
+  background: rgba(255, 7, 58, 0.08);
+  border-radius: 2px;
+}
+
+/* ── EMPTY STATE ── */
+.emptyState {
+  text-align: center;
+  padding: 5rem 2rem;
+  border: 1px dashed rgba(255, 7, 58, 0.15);
+  background: rgba(255, 7, 58, 0.02);
+}
+
+.emptyIcon {
+  color: rgba(255, 7, 58, 0.2);
+  margin: 0 auto 1.25rem;
+  display: block;
+}
+
+.emptyText {
+  font-size: 0.8rem;
+  letter-spacing: 0.35em;
+  text-transform: uppercase;
+  color: #444;
+  margin: 0 0 0.4rem;
+}
+
+.emptySubtext {
+  font-size: 0.65rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: #333;
+}

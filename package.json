@@ -5,6 +5,7 @@
   "scripts": {
     "dev:backend": "cd backend && npm run dev",
     "dev:frontend": "cd frontend && npm run dev",
+    "dev": "npm run dev:backend & npm run dev:frontend",
     "install:all": "cd backend && npm install && cd ../frontend && npm install"
   }
 }

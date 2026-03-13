@@ -14,11 +14,7 @@ const Login = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      if (!user.hasSelectedInitialFriends) {
-        navigate('/setup-friends');
-      } else {
-        navigate('/friends');
-      }
+      navigate('/friends');
     }
   }, [isAuthenticated, navigate, user]);
 
@@ -35,11 +31,7 @@ const Login = () => {
       socket.connect();
       socket.emit('setup', data);
 
-      if (!data.hasSelectedInitialFriends) {
-          navigate('/setup-friends');
-      } else {
-          navigate('/friends');
-      }
+      navigate('/friends');
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to login to Hawkins Lab.');
     } finally {

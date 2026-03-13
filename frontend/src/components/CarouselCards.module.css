@@ -1,0 +1,87 @@
+.carouselWrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  position: relative;
+  padding: 0 60px; /* Space for the arrows */
+}
+
+.carouselContainer {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  max-width: 900px; /* Limit width to keep things tight */
+  height: 500px;
+  position: relative;
+  gap: 0;
+}
+
+.cardWrapper {
+  width: 320px;
+  height: 440px;
+  flex-shrink: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 -40px; /* Tighter overlap */
+  position: relative;
+}
+
+.navButton {
+  background: rgba(20, 2, 2, 0.6);
+  border: 1px solid var(--border-color);
+  color: var(--primary-color);
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 20;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 15px rgba(255, 7, 58, 0.2);
+  backdrop-filter: blur(5px);
+  position: absolute;
+}
+
+.navButton:hover {
+  background: rgba(255, 7, 58, 0.2);
+  color: #fff;
+  box-shadow: var(--neon-glow);
+  transform: scale(1.1);
+}
+
+.navButton:active {
+  transform: scale(0.95);
+}
+
+.prevButton {
+  left: 10px;
+}
+
+.nextButton {
+  right: 10px;
+}
+
+@media (max-width: 768px) {
+  .carouselWrapper {
+    padding: 0 40px;
+  }
+  
+  .cardWrapper {
+    width: 260px;
+    height: 380px;
+    margin: 0 -50px;
+  }
+  
+  .navButton {
+    width: 45px;
+    height: 45px;
+  }
+  
+  .prevButton { left: 5px; }
+  .nextButton { right: 5px; }
+}

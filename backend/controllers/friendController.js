@@ -45,7 +45,8 @@ const sendFriendRequest = async (req, res) => {
       userId: receiverId,
       type: 'friend_request',
       message: `${sender.name} sent you a friend request`,
-      relatedUser: senderId
+      relatedUser: senderId,
+      relatedRequest: request._id // Add this to help the frontend
     });
 
     // Emit socket event if user is online
@@ -205,6 +206,45 @@ const getFriends = async (req, res) => {
   }
 };
 
+// Get specific friend status
+const getFriendStatus = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const currentUserId = req.user.id;
+
+    if (userId === currentUserId) {
+      return res.json({ status: 'self' });
+    }
+
+    const currentUser = await User.findById(currentUserId);
+    if (currentUser.friends.includes(userId)) {
+      return res.json({ status: 'friends' });
+    }
+
+    // Check for pending requests
+    const request = await FriendRequest.findOne({
+      $or: [
+        { sender: currentUserId, receiver: userId },
+        { sender: userId, receiver: currentUserId }
+      ],
+      status: 'pending'
+    });
+
+    if (request) {
+      if (request.sender.toString() === currentUserId) {
+        return res.json({ status: 'request_sent', requestId: request._id });
+      } else {
+        return res.json({ status: 'request_received', requestId: request._id });
+      }
+    }
+
+    res.json({ status: 'none' });
+  } catch (error) {
+    console.error('getFriendStatus error:', error);
+    res.status(500).json({ message: 'Server error' });
+  }
+};
+
 module.exports = {
   sendFriendRequest,
   acceptFriendRequest,
@@ -212,5 +252,6 @@ module.exports = {
   getPendingRequests,
   getSentRequests,
   removeFriend,
-  getFriends
+  getFriends,
+  getFriendStatus
 };

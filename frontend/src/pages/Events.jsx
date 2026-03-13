@@ -3,18 +3,19 @@ import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import useAuthStore from '../store/authStore';
 import useFriendStore from '../store/friendStore';
-import { Calendar as CalendarIcon, Clock, Users, Video } from 'lucide-react';
+import { Calendar, Clock, Users, Video, X, Radio, Zap } from 'lucide-react';
 import { format, parseISO } from 'date-fns';
+import styles from './Events.module.css';
 
 const Events = () => {
   const [events, setEvents] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
+  const [creating, setCreating] = useState(false);
   const { user } = useAuthStore();
   const { friends } = useFriendStore();
   const navigate = useNavigate();
 
-  // Create event form state
   const [formData, setFormData] = useState({
     title: '',
     date: '',
@@ -40,16 +41,15 @@ const Events = () => {
   const handleCreateEvent = async (e) => {
     e.preventDefault();
     try {
-      setLoading(true);
+      setCreating(true);
       await api.post('/events', formData);
       setShowCreateForm(false);
       setFormData({ title: '', date: '', time: '', invitedFriends: [] });
       fetchEvents();
     } catch (error) {
       console.error('Failed to create event', error);
-      alert('Failed to schedule event.');
     } finally {
-      setLoading(false);
+      setCreating(false);
     }
   };
 
@@ -59,158 +59,209 @@ const Events = () => {
       navigate(`/room/${data.roomId}`);
     } catch (error) {
       console.error('Failed to create room', error);
-      alert('Failed to initialize broadcast room.');
     }
   };
 
   const toggleFriendSelect = (friendId) => {
-    if (formData.invitedFriends.includes(friendId)) {
-      setFormData(prev => ({ ...prev, invitedFriends: prev.invitedFriends.filter(id => id !== friendId) }));
-    } else {
-      setFormData(prev => ({ ...prev, invitedFriends: [...prev.invitedFriends, friendId] }));
-    }
+    setFormData(prev => ({
+      ...prev,
+      invitedFriends: prev.invitedFriends.includes(friendId)
+        ? prev.invitedFriends.filter(id => id !== friendId)
+        : [...prev.invitedFriends, friendId]
+    }));
+  };
+
+  const formatDate = (dateStr) => {
+    try { return format(parseISO(dateStr), 'MMM dd, yyyy'); }
+    catch { return dateStr; }
   };
 
   return (
-    <div className="max-w-6xl mx-auto py-8">
-      <div className="flex justify-between items-end mb-8 border-b-2 border-stranger-red pb-4">
-        <div>
-          <h2 className="text-3xl uppercase tracking-widest neon-text mb-2">Watch Parties</h2>
-          <p className="text-gray-400 uppercase tracking-widest text-sm">Synchronized Viewing Schedules</p>
+    <div className={styles.container}>
+
+      {/* ──────────── HEADER ──────────── */}
+      <header className={styles.header}>
+        <div className={styles.titleBlock}>
+          <p className={styles.label}>// CEREBRO OPERATION CENTER</p>
+          <h1 className={styles.title}>Watch Parties</h1>
+          <p className={styles.subtitle}>Synchronized broadcast schedules &amp; events</p>
         </div>
-        <div className="flex gap-4">
-          <button 
-            onClick={createInstantRoom}
-            className="flex items-center gap-2 px-6 py-3 bg-white text-black font-bold uppercase tracking-widest hover:bg-stranger-red transition-colors"
-          >
-            <Video size={20} /> Instant Broadcast
+        <div className={styles.actions}>
+          <button className={styles.btnOutline} onClick={createInstantRoom}>
+            <Zap size={16} />
+            Instant Broadcast
           </button>
-          <button 
-            onClick={() => setShowCreateForm(!showCreateForm)}
-            className="flex items-center gap-2 px-6 py-3 bg-stranger-red text-black font-bold uppercase tracking-widest hover:bg-white transition-colors"
-          >
-            <CalendarIcon size={20} /> Schedule Event
+          <button className={styles.btnPrimary} onClick={() => setShowCreateForm(true)}>
+            <Calendar size={16} />
+            Schedule Event
           </button>
         </div>
-      </div>
+      </header>
 
-      {showCreateForm && (
-        <div className="bg-black/60 border border-stranger-red p-6 mb-12">
-          <h3 className="text-xl text-white uppercase tracking-widest mb-6">Create New Schedule</h3>
-          <form onSubmit={handleCreateEvent} className="space-y-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-xs uppercase text-gray-400 mb-2 tracking-widest">Event Designation</label>
-                <input 
-                  type="text" 
-                  required
-                  className="w-full bg-transparent border-b border-stranger-red p-2 text-white outline-none focus:border-white"
-                  value={formData.title}
-                  onChange={e => setFormData({...formData, title: e.target.value})}
-                  placeholder="e.g. Stranger Things Season 4 Premiere"
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs uppercase text-gray-400 mb-2 tracking-widest">Date</label>
-                  <input 
-                    type="date" 
-                    required
-                    className="w-full bg-transparent border-b border-stranger-red py-2 text-white outline-none focus:border-white"
-                    value={formData.date}
-                    onChange={e => setFormData({...formData, date: e.target.value})}
-                  />
-                </div>
-                <div>
-                  <label className="block text-xs uppercase text-gray-400 mb-2 tracking-widest">Time</label>
-                  <input 
-                    type="time" 
-                    required
-                    className="w-full bg-transparent border-b border-stranger-red py-2 text-white outline-none focus:border-white"
-                    value={formData.time}
-                    onChange={e => setFormData({...formData, time: e.target.value})}
-                  />
-                </div>
-              </div>
-            </div>
+      {/* ──────────── EVENTS GRID ──────────── */}
+      {loading ? (
+        <div className={styles.loadingState}>
+          &gt; Decrypting schedule database...
+        </div>
+      ) : events.length > 0 ? (
+        <>
+          <div className={styles.sectionDivider}>
+            <span>Scheduled Operations — {events.length} Found</span>
+            <div className={styles.dividerLine} />
+          </div>
+          <div className={styles.eventsGrid}>
+            {events.map(event => {
+              const isHost = event.host._id === user?._id;
+              return (
+                <div key={event._id} className={styles.eventCard}>
 
-            <div>
-              <label className="block text-xs uppercase text-gray-400 mb-4 tracking-widest">Select Authorized Subjects List</label>
-              {friends.length > 0 ? (
-                <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4 max-h-48 overflow-y-auto pr-2">
-                  {friends.map(f => (
-                    <div 
-                      key={f._id}
-                      onClick={() => toggleFriendSelect(f._id)}
-                      className={`cursor-pointer border p-2 text-center transition-colors ${
-                        formData.invitedFriends.includes(f._id) ? 'bg-stranger-red text-black border-white' : 'border-gray-800 text-gray-400 hover:border-stranger-red'
-                      }`}
-                    >
-                      <img src={f.profilePic || 'https://res.cloudinary.com/demo/image/upload/v1312461204/sample.jpg'} alt="" className="w-8 h-8 rounded-full mx-auto mb-2 object-cover" />
-                      <p className="text-xs truncate">{f.name}</p>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-yellow-600 text-sm">No connections available in your directory.</p>
-              )}
-            </div>
+                  {/* Badge */}
+                  <span className={`${styles.cardBadge} ${isHost ? styles.badgeHost : styles.badgeInvited}`}>
+                    {isHost ? 'Host' : 'Invited'}
+                  </span>
 
-            <div className="flex justify-end pt-4">
-              <button 
-                type="submit"
-                disabled={loading || !formData.title || !formData.date || !formData.time}
-                className="px-8 py-3 bg-stranger-red text-black font-bold uppercase tracking-widest hover:bg-white transition-colors disabled:opacity-50"
-              >
-                CONFIRM SCHEDULE
-              </button>
-            </div>
-          </form>
+                  {/* Title */}
+                  <h3 className={styles.cardTitle}>{event.title}</h3>
+
+                  {/* Meta */}
+                  <ul className={styles.metaList}>
+                    <li className={styles.metaItem}>
+                      <Calendar size={14} />
+                      <span>{formatDate(event.date)}</span>
+                    </li>
+                    <li className={styles.metaItem}>
+                      <Clock size={14} />
+                      <span>{event.time}</span>
+                    </li>
+                    <li className={styles.metaItem}>
+                      <Users size={14} />
+                      <span>Host: {isHost ? 'You' : event.host.name}</span>
+                    </li>
+                  </ul>
+
+                  {/* Actions */}
+                  <div className={styles.cardFooter}>
+                    {isHost ? (
+                      <button className={styles.broadcastBtn} onClick={createInstantRoom}>
+                        <Radio size={14} style={{ display:'inline', marginRight:'6px' }} />
+                        Initiate Broadcast
+                      </button>
+                    ) : (
+                      <div className={styles.awaitBtn}>
+                        &gt; Awaiting host signal...
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        </>
+      ) : (
+        <div className={styles.emptyState}>
+          <Video size={48} className={styles.emptyIcon} />
+          <p className={styles.emptyText}>No Operations Scheduled</p>
+          <p className={styles.emptySubtext}>Schedule your first synchronized watch event above</p>
         </div>
       )}
 
-      {loading && !showCreateForm ? (
-        <div className="text-center py-12 blink text-stranger-red uppercase tracking-widest">Loading schedules...</div>
-      ) : events.length > 0 ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {events.map(event => {
-            const isHost = event.host._id === user?._id;
-            return (
-              <div key={event._id} className="border border-gray-800 bg-black/40 hover:border-stranger-red transition-all p-6 relative overflow-hidden group">
-                <div className="absolute top-0 right-0 p-2 bg-stranger-red/20 text-stranger-red text-xs uppercase font-bold tracking-widest group-hover:bg-stranger-red group-hover:text-black transition-colors">
-                  {isHost ? 'HOST' : 'INVITED'}
-                </div>
-                
-                <h3 className="text-xl font-bold text-white uppercase tracking-wider mb-4 pr-16">{event.title}</h3>
-                
-                <div className="space-y-2 mb-6 text-sm text-gray-400 uppercase tracking-widest">
-                  <div className="flex items-center gap-3">
-                    <CalendarIcon size={16} className="text-stranger-red" />
-                    <span>{format(parseISO(event.date), 'MMMM do, yyyy')}</span>
+      {/* ──────────── CREATE MODAL ──────────── */}
+      {showCreateForm && (
+        <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && setShowCreateForm(false)}>
+          <div className={styles.modal}>
+            <div className={styles.modalHeader}>
+              <span className={styles.modalTitle}>// New Operation Brief</span>
+              <button className={styles.closeBtn} onClick={() => setShowCreateForm(false)}>
+                <X size={16} />
+              </button>
+            </div>
+            <form onSubmit={handleCreateEvent}>
+              <div className={styles.modalBody}>
+
+                {/* Title */}
+                <div className={styles.formGrid}>
+                  <div className={`${styles.formGroup} ${styles.fullWidth}`}>
+                    <label className={styles.formLabel}>Event Designation *</label>
+                    <input
+                      type="text"
+                      required
+                      className={styles.formInput}
+                      value={formData.title}
+                      onChange={e => setFormData({ ...formData, title: e.target.value })}
+                      placeholder="e.g. Stranger Things S4 Premiere"
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Clock size={16} className="text-stranger-red" />
-                    <span>{event.time}</span>
+
+                  {/* Date */}
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Date *</label>
+                    <input
+                      type="date"
+                      required
+                      className={styles.formInput}
+                      value={formData.date}
+                      onChange={e => setFormData({ ...formData, date: e.target.value })}
+                    />
                   </div>
-                  <div className="flex items-center gap-3">
-                    <Users size={16} className="text-stranger-red" />
-                    <span>Host: {isHost ? 'You' : event.host.name}</span>
+
+                  {/* Time */}
+                  <div className={styles.formGroup}>
+                    <label className={styles.formLabel}>Time *</label>
+                    <input
+                      type="time"
+                      required
+                      className={styles.formInput}
+                      value={formData.time}
+                      onChange={e => setFormData({ ...formData, time: e.target.value })}
+                    />
                   </div>
                 </div>
 
-                <button 
-                  onClick={isHost ? createInstantRoom : () => alert('Please wait for host to initiate the broadcast URL.')}
-                  className="w-full py-3 border border-stranger-red text-stranger-red uppercase tracking-widest text-sm hover:bg-stranger-red hover:text-black transition-colors font-bold"
+                {/* Friends Invite */}
+                <div>
+                  <p className={styles.friendsLabel}>Authorized Subjects</p>
+                  {friends.length > 0 ? (
+                    <div className={styles.friendsGrid}>
+                      {friends.map(f => (
+                        <div
+                          key={f._id}
+                          className={`${styles.friendChip} ${formData.invitedFriends.includes(f._id) ? styles.selected : ''}`}
+                          onClick={() => toggleFriendSelect(f._id)}
+                        >
+                          <img
+                            src={f.profilePic || `https://ui-avatars.com/api/?name=${f.name}&background=1a0202&color=ff073a`}
+                            alt={f.name}
+                          />
+                          <p>{f.name}</p>
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className={styles.noFriends}>No connections in neural directory.</p>
+                  )}
+                </div>
+
+              </div>
+              <div className={styles.modalFooter}>
+                <button
+                  type="button"
+                  className={styles.btnOutline}
+                  onClick={() => setShowCreateForm(false)}
+                  style={{ clipPath: 'none' }}
                 >
-                  {isHost ? 'INITIATE BROADCAST' : 'AWAITING SIGNAL'}
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  className={styles.btnPrimary}
+                  disabled={creating || !formData.title || !formData.date || !formData.time}
+                  style={{ clipPath: 'none', opacity: (creating || !formData.title || !formData.date || !formData.time) ? 0.5 : 1 }}
+                >
+                  {creating ? 'Scheduling...' : 'Confirm Schedule'}
                 </button>
               </div>
-            );
-          })}
-        </div>
-      ) : (
-        <div className="text-center py-20 border border-gray-900 bg-black/20">
-          <p className="text-gray-500 uppercase tracking-widest">No upcoming schedules found in directory.</p>
+            </form>
+          </div>
         </div>
       )}
     </div>

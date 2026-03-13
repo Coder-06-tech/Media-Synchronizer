@@ -1,3 +1,18 @@
+:root {
+  --primary-color: #ff073a; /* Neon Red */
+  --primary-hover: #ff3366;
+  --bg-color: #0a0101; /* Dark Red/Black Background */
+  --surface-color: #1a0202;
+  --card-bg: rgba(20, 2, 2, 0.85);
+  --text-color: #ffffff;
+  --text-muted: #b08888;
+  --border-color: rgba(255, 7, 58, 0.6);
+  --danger-color: #ff0055;
+  --danger-hover: #cc0044;
+  --neon-glow: 0 0 20px rgba(255, 7, 58, 0.5);
+  --neon-glow-strong: 0 0 30px rgba(255, 7, 58, 0.8), inset 0 0 10px rgba(255, 7, 58, 0.4);
+}
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -5,9 +20,13 @@
 @layer base {
   body {
     @apply bg-stranger-bg text-red-500 font-retro;
-    background-color: #0a0a0c;
+    background-color: var(--bg-color);
+    background-image: 
+      radial-gradient(circle at top right, rgba(255, 7, 58, 0.05), transparent 40%),
+      radial-gradient(circle at bottom left, rgba(255, 7, 58, 0.05), transparent 40%);
     color: #e50914; /* Default text red */
     overflow-x: hidden;
+    min-height: 100vh;
   }
 }
 

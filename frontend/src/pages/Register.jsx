@@ -3,6 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import useAuthStore from '../store/authStore';
 import api from '../api';
 import { socket } from '../socket/socketClient';
+import { Camera } from 'lucide-react';
 
 const Register = () => {
   const [formData, setFormData] = useState({ 
@@ -18,7 +19,7 @@ const Register = () => {
 
   useEffect(() => {
     if (isAuthenticated) {
-      navigate('/setup-friends');
+      navigate('/friends');
     }
   }, [isAuthenticated, navigate]);
 
@@ -45,7 +46,7 @@ const Register = () => {
       socket.connect();
       socket.emit('setup', data);
 
-      navigate('/setup-friends');
+      navigate('/friends');
     } catch (err) {
       setError(err.response?.data?.message || 'Registration failed.');
     } finally {
@@ -132,10 +133,47 @@ const Register = () => {
             />
           </div>
 
+          <div className="flex flex-col items-center gap-4 py-4">
+            <div className="relative group">
+              <img 
+                src={profilePic} 
+                alt="Preview" 
+                className="w-24 h-24 object-cover rounded-full border-2 border-stranger-red"
+              />
+              <label 
+                htmlFor="regAvatar" 
+                className="absolute inset-0 bg-black/50 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity"
+              >
+                <Camera size={20} className="text-white" />
+              </label>
+            </div>
+            <input 
+              type="file" 
+              id="regAvatar" 
+              className="hidden" 
+              accept="image/*" 
+              onChange={async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                const formData = new FormData();
+                formData.append('profilePic', file);
+                try {
+                  const { data } = await api.post('/auth/upload-temp', formData, {
+                    headers: { 'Content-Type': 'multipart/form-data' }
+                  });
+                  setProfilePic(data.url);
+                } catch (err) {
+                  setError('Image upload failed.');
+                }
+              }} 
+            />
+            <span className="text-[10px] uppercase tracking-tighter text-gray-500">Subject Visual Signature</span>
+          </div>
+
           <button 
             type="submit" 
             disabled={loading}
-            className="w-full py-4 mt-8 bg-stranger-red text-black uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50"
+            className="w-full py-4 mt-4 bg-stranger-red text-black uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50"
           >
             {loading ? 'PROCESSING...' : 'INITIALIZE SUBJECT'}
           </button>

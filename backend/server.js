@@ -3,6 +3,7 @@ const express = require('express');
 const http = require('http');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const path = require('path');
 const { Server } = require('socket.io');
 
 const authRoutes = require('./routes/auth');
@@ -10,6 +11,7 @@ const userRoutes = require('./routes/users');
 const friendRoutes = require('./routes/friends');
 const roomRoutes = require('./routes/rooms');
 const eventRoutes = require('./routes/events');
+const notificationRoutes = require('./routes/notifications');
 
 const setupSignalingSockets = require('./sockets/signaling');
 const setupVideoSyncSockets = require('./sockets/videoSync');
@@ -18,14 +20,15 @@ const app = express();
 const server = http.createServer(app);
 
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5174',
+  origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:5173',
   credentials: true
 }));
 app.use(express.json());
+app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 
 const io = new Server(server, {
   cors: {
-    origin: process.env.CLIENT_URL || 'http://localhost:5174',
+    origin: process.env.CLIENT_URL ? process.env.CLIENT_URL.split(',') : 'http://localhost:5173',
     methods: ['GET', 'POST'],
     credentials: true
   }
@@ -40,6 +43,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/friends', friendRoutes);
 app.use('/api/rooms', roomRoutes);
 app.use('/api/events', eventRoutes);
+app.use('/api/notifications', notificationRoutes);
 
 // Socket connections
 io.on('connection', (socket) => {

@@ -3,10 +3,12 @@ import Navbar from './components/Navbar';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import Profile from './pages/Profile';
-import Friends from './pages/Friends';
-import WatchRoom from './pages/WatchRoom';
 import Events from './pages/Events';
 import InitialFriends from './pages/InitialFriends';
+import FriendsPage from './pages/FriendsPage';
+import ProfileDetails from './pages/ProfileDetails';
+import WatchRoom from './pages/WatchRoom';
+import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   return (
@@ -19,9 +21,11 @@ function App() {
           <Route path="/register" element={<Register />} />
           <Route path="/setup-friends" element={<InitialFriends />} />
           <Route path="/profile" element={<Profile />} />
-          <Route path="/friends" element={<Friends />} />
+          <Route path="/friends" element={<FriendsPage />} />
+          <Route path="/profile/:id" element={<ProfileDetails />} />
           <Route path="/room/:roomId" element={<WatchRoom />} />
           <Route path="/events" element={<Events />} />
+          <Route path="/notifications" element={<NotificationsPage />} />
         </Routes>
       </div>
     </div>

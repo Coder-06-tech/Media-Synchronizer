@@ -1,0 +1,553 @@
+/* ============================================
+   EVENTS PAGE — OPERATIONS COMMAND CENTER
+   ============================================ */
+
+.container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1.5rem;
+  min-height: 100vh;
+}
+
+/* ---- HEADER ---- */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  border-bottom: 1px solid var(--primary-color);
+  padding-bottom: 1.5rem;
+  margin-bottom: 2.5rem;
+  position: relative;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, var(--primary-color), transparent);
+  opacity: 0.4;
+}
+
+.titleBlock .label {
+  font-size: 0.7rem;
+  letter-spacing: 0.4em;
+  color: var(--primary-color);
+  text-transform: uppercase;
+  margin-bottom: 0.25rem;
+  opacity: 0.7;
+}
+
+.title {
+  font-size: clamp(1.6rem, 4vw, 2.4rem);
+  text-transform: uppercase;
+  letter-spacing: 0.2em;
+  color: #fff;
+  text-shadow:
+    0 0 8px rgba(255, 7, 58, 0.8),
+    0 0 20px rgba(255, 7, 58, 0.4);
+  margin: 0;
+  line-height: 1;
+}
+
+.subtitle {
+  font-size: 0.7rem;
+  letter-spacing: 0.3em;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  margin-top: 0.5rem;
+}
+
+/* ---- ACTION BUTTONS ---- */
+.actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.btnPrimary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-color);
+  color: #000;
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s, box-shadow 0.2s, transform 0.1s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.btnPrimary:hover {
+  background: #fff;
+  box-shadow: 0 0 20px rgba(255, 7, 58, 0.6);
+  transform: translateY(-2px);
+}
+
+.btnOutline {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: transparent;
+  color: var(--primary-color);
+  font-weight: 800;
+  font-size: 0.7rem;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  border: 1px solid var(--primary-color);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, box-shadow 0.2s, transform 0.1s;
+  clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+}
+
+.btnOutline:hover {
+  background: var(--primary-color);
+  color: #000;
+  box-shadow: 0 0 20px rgba(255, 7, 58, 0.5);
+  transform: translateY(-2px);
+}
+
+/* ---- CREATE MODAL OVERLAY ---- */
+.modalOverlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.85);
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal {
+  background: #0a0101;
+  border: 1px solid var(--primary-color);
+  box-shadow:
+    0 0 40px rgba(255, 7, 58, 0.3),
+    inset 0 0 60px rgba(255, 7, 58, 0.03);
+  width: 100%;
+  max-width: 640px;
+  position: relative;
+  animation: slideUp 0.25s ease;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid rgba(255, 7, 58, 0.3);
+  background: rgba(255, 7, 58, 0.05);
+}
+
+.modalTitle {
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  font-weight: 700;
+}
+
+.closeBtn {
+  background: none;
+  border: 1px solid rgba(255, 7, 58, 0.4);
+  color: var(--primary-color);
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+.closeBtn:hover {
+  background: rgba(255, 7, 58, 0.15);
+}
+
+.modalBody {
+  padding: 1.5rem;
+}
+
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.formGroup.fullWidth {
+  grid-column: 1 / -1;
+}
+
+.formLabel {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  opacity: 0.7;
+}
+
+.formInput {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(255, 7, 58, 0.5);
+  color: #fff;
+  font-size: 0.9rem;
+  padding: 0.5rem 0;
+  outline: none;
+  transition: border-color 0.2s;
+  font-family: inherit;
+  width: 100%;
+}
+
+.formInput:focus {
+  border-bottom-color: #fff;
+}
+
+.formInput::placeholder {
+  color: rgba(255, 255, 255, 0.2);
+  font-size: 0.8rem;
+}
+
+/* ---- FRIENDS GRID ---- */
+.friendsLabel {
+  font-size: 0.65rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  opacity: 0.7;
+  margin-bottom: 0.75rem;
+}
+
+.friendsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(72px, 1fr));
+  gap: 0.75rem;
+  max-height: 160px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.friendsGrid::-webkit-scrollbar { width: 4px; }
+.friendsGrid::-webkit-scrollbar-track { background: transparent; }
+.friendsGrid::-webkit-scrollbar-thumb { background: var(--primary-color); border-radius: 2px; }
+
+.friendChip {
+  border: 1px solid rgba(255, 7, 58, 0.2);
+  padding: 0.5rem;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.15s;
+  background: rgba(255, 7, 58, 0.03);
+}
+
+.friendChip:hover {
+  border-color: var(--primary-color);
+}
+
+.friendChip.selected {
+  border-color: var(--primary-color);
+  background: rgba(255, 7, 58, 0.15);
+}
+
+.friendChip img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  margin: 0 auto 0.3rem;
+  display: block;
+  border: 1px solid rgba(255, 7, 58, 0.3);
+}
+
+.friendChip.selected img {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 8px rgba(255, 7, 58, 0.5);
+}
+
+.friendChip p {
+  font-size: 0.6rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #aaa;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.friendChip.selected p {
+  color: var(--primary-color);
+}
+
+.noFriends {
+  font-size: 0.75rem;
+  color: #555;
+  text-transform: uppercase;
+  letter-spacing: 0.15em;
+  padding: 1rem 0;
+}
+
+.modalFooter {
+  padding: 1rem 1.5rem;
+  border-top: 1px solid rgba(255, 7, 58, 0.15);
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+}
+
+/* ---- EVENTS GRID ---- */
+.eventsGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+/* ---- EVENT CARD ---- */
+.eventCard {
+  border: 1px solid rgba(255, 7, 58, 0.2);
+  background: linear-gradient(135deg, rgba(30, 0, 5, 0.9), rgba(10, 1, 1, 0.95));
+  position: relative;
+  overflow: hidden;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+  cursor: default;
+}
+
+.eventCard::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 2px;
+  height: 100%;
+  background: var(--primary-color);
+  opacity: 0;
+  transition: opacity 0.3s;
+}
+
+.eventCard:hover {
+  border-color: var(--primary-color);
+  box-shadow:
+    0 0 20px rgba(255, 7, 58, 0.15),
+    inset 0 0 40px rgba(255, 7, 58, 0.03);
+  transform: translateY(-3px);
+}
+
+.eventCard:hover::before {
+  opacity: 1;
+}
+
+/* Scan line overlay on hover */
+.eventCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    transparent,
+    transparent 2px,
+    rgba(0, 0, 0, 0.04) 2px,
+    rgba(0, 0, 0, 0.04) 4px
+  );
+  pointer-events: none;
+}
+
+.cardBadge {
+  position: absolute;
+  top: 0;
+  right: 0;
+  padding: 0.25rem 0.75rem;
+  font-size: 0.6rem;
+  font-weight: 800;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.badgeHost {
+  background: var(--primary-color);
+  color: #000;
+}
+
+.badgeInvited {
+  background: rgba(255, 7, 58, 0.15);
+  color: var(--primary-color);
+  border-left: 1px solid rgba(255, 7, 58, 0.4);
+  border-bottom: 1px solid rgba(255, 7, 58, 0.4);
+}
+
+.cardTitle {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #fff;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 0.5rem 0 1.25rem;
+  padding-right: 5rem;
+  line-height: 1.3;
+}
+
+.metaList {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #888;
+}
+
+.metaItem svg {
+  color: var(--primary-color);
+  flex-shrink: 0;
+}
+
+/* ---- CARD FOOTER ---- */
+.cardFooter {
+  display: flex;
+  gap: 0.75rem;
+  border-top: 1px solid rgba(255, 7, 58, 0.15);
+  padding-top: 1.25rem;
+}
+
+.broadcastBtn {
+  flex: 1;
+  padding: 0.65rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: var(--primary-color);
+  color: #000;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.broadcastBtn:hover {
+  background: #fff;
+  box-shadow: 0 0 15px rgba(255, 7, 58, 0.5);
+}
+
+.awaitBtn {
+  flex: 1;
+  padding: 0.65rem;
+  font-size: 0.65rem;
+  font-weight: 800;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  background: transparent;
+  color: #666;
+  border: 1px solid #333;
+  cursor: default;
+}
+
+/* ---- EMPTY STATE ---- */
+.emptyState {
+  text-align: center;
+  padding: 6rem 2rem;
+  border: 1px solid rgba(255, 7, 58, 0.1);
+  background: rgba(255, 7, 58, 0.02);
+}
+
+.emptyIcon {
+  color: rgba(255, 7, 58, 0.2);
+  margin: 0 auto 1.5rem;
+  display: block;
+}
+
+.emptyText {
+  font-size: 0.75rem;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: #444;
+  margin-bottom: 0.5rem;
+}
+
+.emptySubtext {
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: #333;
+}
+
+/* ---- LOADING STATE ---- */
+.loadingState {
+  text-align: center;
+  padding: 5rem;
+  font-size: 0.75rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+/* ---- SECTION DIVIDER ---- */
+.sectionDivider {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.sectionDivider span {
+  font-size: 0.65rem;
+  letter-spacing: 0.4em;
+  text-transform: uppercase;
+  color: var(--primary-color);
+  opacity: 0.7;
+  white-space: nowrap;
+}
+
+.dividerLine {
+  flex: 1;
+  height: 1px;
+  background: rgba(255, 7, 58, 0.2);
+}
+
+/* ---- RESPONSIVE ---- */
+@media (max-width: 640px) {
+  .header { flex-direction: column; align-items: flex-start; gap: 1.25rem; }
+  .formGrid { grid-template-columns: 1fr; }
+  .eventsGrid { grid-template-columns: 1fr; }
+  .actions { width: 100%; }
+  .btnPrimary, .btnOutline { flex: 1; justify-content: center; }
+}

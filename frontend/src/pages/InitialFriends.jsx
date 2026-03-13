@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import useAuthStore from '../store/authStore';
-import FriendCard from '../components/FriendCard';
+import ProfileCard from '../components/ProfileCard';
 
 const InitialFriends = () => {
   const [potentialFriends, setPotentialFriends] = useState([]);
@@ -87,11 +87,11 @@ const InitialFriends = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
         {potentialFriends.map((subject) => (
-          <FriendCard 
+          <ProfileCard 
             key={subject._id} 
             user={subject} 
             isSelected={selectedIds.includes(subject._id)}
-            onSelect={() => handleSelect(subject._id)}
+            onAction={() => handleSelect(subject._id)}
             actionType="select" 
           />
         ))}
