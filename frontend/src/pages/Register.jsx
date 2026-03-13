@@ -57,13 +57,6 @@ const Register = () => {
   return (
     <div className="relative min-h-screen flex justify-center items-center py-10">
        {/* Background Image with Overlay */}
-       <div 
-        className="fixed inset-0 z-0 bg-cover bg-no-repeat" 
-        style={{ backgroundImage: 'url("/login-bg.jpg")', backgroundPosition: 'center 15%' }}
-      >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/40"></div>
-      </div>
 
       <div className="glass-card p-10 border border-stranger-red/30 neon-border max-w-lg w-full relative z-10 shadow-[0_0_50px_rgba(229,9,20,0.2)]">
         <h2 className="text-3xl font-orbitron tracking-[0.2em] text-center neon-text mb-10">Subject Registration</h2>

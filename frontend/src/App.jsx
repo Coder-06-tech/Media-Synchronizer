@@ -12,7 +12,7 @@ import NotificationsPage from './pages/NotificationsPage';
 
 function App() {
   return (
-    <div className="min-h-screen crt relative bg-stranger-bg font-retro overflow-x-hidden text-red-500">
+    <div className="min-h-screen crt relative bg-transparent font-retro overflow-x-hidden text-red-500">
       <div className="particles"></div>
       <Navbar />
       <div className="container mx-auto px-4 py-8 relative z-10">

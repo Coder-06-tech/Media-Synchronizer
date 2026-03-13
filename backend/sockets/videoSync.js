@@ -2,7 +2,7 @@ const setupVideoSyncSockets = (io, socket) => {
   
   socket.on('play_video', (data) => {
     // Only broadcaster should emit this ideally
-    socket.to(data.roomId).emit('play_video', { timestamp: data.timestamp });
+    socket.to(data.roomId).emit('play_video', { timestamp: data.timestamp, url: data.url });
   });
 
   socket.on('pause_video', (data) => {
@@ -35,6 +35,17 @@ const setupVideoSyncSockets = (io, socket) => {
     io.to(data.requesterId).emit('pong_health', { 
         timestamp: data.timestamp,
         responderId: socket.id
+    });
+  });
+
+  // Chat Functionality
+  socket.on('send_message', (data) => {
+    // data: { roomId, message, user }
+    io.in(data.roomId).emit('receive_message', { 
+        id: Math.random().toString(36).substr(2, 9),
+        text: data.message, 
+        sender: data.user,
+        timestamp: new Date().toISOString()
     });
   });
 };

@@ -10,30 +10,41 @@ const setupSignalingSockets = (io, socket) => {
   });
 
   // WebRTC Signaling
-  socket.on('join_room', (roomId) => {
+  socket.on('join_room', (data) => {
+    // Support both object { roomId, ... } and plain string formats
+    const roomId = typeof data === 'object' ? data.roomId : data;
     socket.join(roomId);
     socket.to(roomId).emit('user_joined', { userId: socket.id });
     console.log(`User ${socket.id} joined room ${roomId}`);
   });
 
   socket.on('offer', (data) => {
-    socket.to(data.roomId).emit('offer', {
+    const target = data.receiverId || data.roomId;
+    io.to(target).emit('offer', {
       offer: data.offer,
       senderId: socket.id
     });
   });
 
   socket.on('answer', (data) => {
-    socket.to(data.roomId).emit('answer', {
+    const target = data.receiverId || data.roomId;
+    io.to(target).emit('answer', {
       answer: data.answer,
       senderId: socket.id
     });
   });
 
   socket.on('ice_candidate', (data) => {
-    socket.to(data.roomId).emit('ice_candidate', {
+    const target = data.receiverId || data.roomId;
+    io.to(target).emit('ice_candidate', {
       candidate: data.candidate,
       senderId: socket.id
+    });
+  });
+
+  socket.on('disconnecting', () => {
+    socket.rooms.forEach(roomId => {
+        socket.to(roomId).emit('user_left', { userId: socket.id });
     });
   });
 };

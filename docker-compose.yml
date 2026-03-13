@@ -1,0 +1,57 @@
+version: '3.8'
+
+services:
+  # --- Distributed Broadcast Backend ---
+  backend:
+    build: ./backend
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - PORT=5000
+      - MONGODB_URI=mongodb://mongo:27017/videosync
+      - REDIS_URL=redis://redis:6379
+      - JWT_SECRET=HawkinsProtocol_983
+      - CLIENT_URL=http://localhost:5173,http://localhost:5174
+    depends_on:
+      - mongo
+      - redis
+    networks:
+      - videosync-network
+
+  # --- Real-Time Sync Layer (Redis) ---
+  redis:
+    image: redis:7-alpine
+    ports:
+      - "6379:6379"
+    networks:
+      - videosync-network
+
+  # --- Persistent Data (MongoDB) ---
+  mongo:
+    image: mongo:6
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    networks:
+      - videosync-network
+
+  # --- Frontend (Optional for Local Docker Dev) ---
+  frontend:
+    build: ./frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api
+    depends_on:
+      - backend
+    networks:
+      - videosync-network
+
+networks:
+  videosync-network:
+    driver: bridge
+
+volumes:
+  mongo-data:

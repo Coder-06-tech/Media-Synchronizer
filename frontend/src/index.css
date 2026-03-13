@@ -21,13 +21,27 @@
   body {
     @apply bg-stranger-bg text-red-500 font-retro;
     font-family: 'Outfit', sans-serif;
-    background-color: var(--bg-color);
-    background-image: 
-      radial-gradient(circle at top right, rgba(255, 7, 58, 0.05), transparent 40%),
-      radial-gradient(circle at bottom left, rgba(255, 7, 58, 0.05), transparent 40%);
-    color: #e50914; /* Default text red */
+    background-color: #050507;
+    background-image: url('/login-bg.jpg');
+    background-attachment: fixed;
+    background-size: cover;
+    background-position: center 15%;
+    color: #e50914;
     overflow-x: hidden;
     min-height: 100vh;
+    position: relative;
+  }
+
+  body::after {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: -1;
+    pointer-events: none;
   }
 
   h1, h2, h3, h4, .font-title {
@@ -161,4 +175,27 @@
   90% { opacity: 0.01275; }
   95% { opacity: 0.05391; }
   100% { opacity: 0.0438; }
+}
+
+.animate-spin-slow {
+  animation: spin 8s linear infinite;
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+.custom-scrollbar::-webkit-scrollbar {
+  width: 4px;
+}
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(0,0,0,0.1);
+}
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #e50914;
+  border-radius: 10px;
+}
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #ff0000;
 }

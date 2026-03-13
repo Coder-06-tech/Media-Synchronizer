@@ -142,10 +142,20 @@ const Events = () => {
                   {/* Actions */}
                   <div className={styles.cardFooter}>
                     {isHost ? (
-                      <button className={styles.broadcastBtn} onClick={createInstantRoom}>
+                      <button className={styles.broadcastBtn} onClick={async () => {
+                         try {
+                            const { data } = await api.post('/rooms', { title: event.title });
+                            await api.patch(`/events/${event._id}`, { linkedWatchRoom: data.roomId });
+                            navigate(`/room/${data.roomId}`);
+                         } catch (e) { console.error(e); }
+                      }}>
                         <Radio size={14} style={{ display:'inline', marginRight:'6px' }} />
                         Initiate Broadcast
                       </button>
+                    ) : event.linkedWatchRoom ? (
+                       <button className={styles.btnPrimary} onClick={() => navigate(`/room/${event.linkedWatchRoom}`)}>
+                         Join Active Signal
+                       </button>
                     ) : (
                       <div className={styles.awaitBtn}>
                         &gt; Awaiting host signal...
@@ -228,8 +238,8 @@ const Events = () => {
                           className={`${styles.friendChip} ${formData.invitedFriends.includes(f._id) ? styles.selected : ''}`}
                           onClick={() => toggleFriendSelect(f._id)}
                         >
-                          <img
-                            src={f.profilePic || `https://ui-avatars.com/api/?name=${f.name}&background=1a0202&color=ff073a`}
+                           <img
+                            src={f.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${f.username}`}
                             alt={f.name}
                           />
                           <p>{f.name}</p>

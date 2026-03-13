@@ -39,9 +39,9 @@ const ProfileCard = ({ user, actionType = 'add', onAction, isRequested: initialR
       <div className={styles.topSection}>
         <div className={styles.avatarWrapper}>
           <img 
-            src={user.profilePic || 'https://via.placeholder.com/150'} 
-            alt={`${user.name} Profile`} 
-            className={styles.avatar} 
+            src={user?.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} 
+            alt="Profile" 
+            className="w-10 h-10 rounded-full border border-stranger-red/50 object-cover shadow-[0_0_10px_rgba(229,9,20,0.3)]"
           />
         </div>
       </div>

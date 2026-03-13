@@ -15,6 +15,9 @@ const notificationRoutes = require('./routes/notifications');
 
 const setupSignalingSockets = require('./sockets/signaling');
 const setupVideoSyncSockets = require('./sockets/videoSync');
+const setupBroadcastEngine = require('./sockets/broadcastEngine');
+const { createAdapter } = require('@socket.io/redis-adapter');
+const { createClient } = require('redis');
 
 const app = express();
 const server = http.createServer(app);
@@ -36,6 +39,18 @@ const io = new Server(server, {
   }
 });
 
+// Setup Redis Adapter if REDIS_URL exists
+if (process.env.REDIS_URL) {
+    const pubClient = createClient({ url: process.env.REDIS_URL });
+    const subClient = pubClient.duplicate();
+    Promise.all([pubClient.connect(), subClient.connect()]).then(() => {
+        io.adapter(createAdapter(pubClient, subClient));
+        console.log('[SYSTEM] Redis Adapter scales connected.');
+    }).catch(err => {
+        console.error('[SYSTEM] Redis Adapter failed:', err);
+    });
+}
+
 // App level socket io instance
 app.set('io', io);
 
@@ -54,6 +69,7 @@ io.on('connection', (socket) => {
   // Custom sockets logic modularized
   setupSignalingSockets(io, socket);
   setupVideoSyncSockets(io, socket);
+  setupBroadcastEngine(io, socket);
 
   socket.on('disconnect', () => {
     console.log('Client disconnected:', socket.id);

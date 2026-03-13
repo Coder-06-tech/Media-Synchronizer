@@ -1,15 +1,16 @@
 import React, { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import api from '../api';
 import { socket } from '../socket/socketClient';
 import styles from './NotificationsPage.module.css';
-import { Bell, User, Calendar, Trash2, CheckCircle, XCircle } from 'lucide-react';
+import { Bell, User, Calendar, Trash2, CheckCircle, XCircle, Radio } from 'lucide-react';
 
 /* ── helpers ── */
 const TYPE_META = {
   friend_request: { icon: <User size={20} />, label: 'Connection Request' },
   friend_accepted: { icon: <CheckCircle size={20} />, label: 'Connection Accepted' },
   event_invite:   { icon: <Calendar size={20} />, label: 'Event Invitation' },
-  watch_invite:   { icon: <Calendar size={20} />, label: 'Watch Invite' },
+  watch_invite:   { icon: <Radio size={20} />, label: 'Watch Invite', actionLabel: 'JOIN SESSION' },
   system:         { icon: <Bell size={20} />, label: 'System' },
 };
 
@@ -27,6 +28,7 @@ const NotificationsPage = () => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState({}); // { [notifId]: true }
+  const navigate = useNavigate();
 
   /* ── fetch on mount ── */
   useEffect(() => {
@@ -66,9 +68,13 @@ const NotificationsPage = () => {
         await api.put(`/events/${notif.relatedEvent}/respond`, {
           status: action === 'accept' ? 'accepted' : 'declined'
         });
+      } else if (notif.type === 'watch_invite') {
+        navigate(`/room/${notif.relatedRoomId}`);
       }
       // Mark read in backend (fire-and-forget)
-      api.put(`/notifications/${notif._id}/read`).catch(() => {});
+      if (notif._id && notif._id !== 'undefined') {
+        api.put(`/notifications/${notif._id}/read`).catch(() => {});
+      }
     } catch (err) {
       console.error('Action failed:', err);
       // Revert optimistic update on error
@@ -78,7 +84,7 @@ const NotificationsPage = () => {
     } finally {
       setActionLoading(prev => ({ ...prev, [notif._id]: false }));
     }
-  }, []);
+  }, [navigate]);
 
   /* ── Clear all ── */
   const clearAll = async () => {
@@ -131,14 +137,14 @@ const NotificationsPage = () => {
         )}
 
         {/* Notification cards */}
-        {notifications.map(notif => {
+        {notifications.map((notif, index) => {
           const meta = TYPE_META[notif.type] || TYPE_META.system;
           const isActing = actionLoading[notif._id];
-          const canAct = !notif.read && (notif.type === 'friend_request' || notif.type === 'event_invite');
+          const canAct = !notif.read && (notif.type === 'friend_request' || notif.type === 'event_invite' || notif.type === 'watch_invite');
 
           return (
             <div
-              key={notif._id}
+              key={notif._id || index}
               className={`${styles.notifCard} ${notif.read ? styles.read : styles.unread}`}
             >
               <div className={styles.notifIconWrap}>
@@ -159,15 +165,17 @@ const NotificationsPage = () => {
                       disabled={isActing}
                       onClick={() => handleAction(notif, 'accept')}
                     >
-                      {isActing ? '...' : 'ACCEPT'}
+                      {isActing ? '...' : (meta.actionLabel || 'ACCEPT')}
                     </button>
-                    <button
-                      className={styles.declineBtn}
-                      disabled={isActing}
-                      onClick={() => handleAction(notif, 'decline')}
-                    >
-                      {isActing ? '...' : 'DECLINE'}
-                    </button>
+                    {notif.type !== 'watch_invite' && (
+                        <button
+                        className={styles.declineBtn}
+                        disabled={isActing}
+                        onClick={() => handleAction(notif, 'decline')}
+                        >
+                        {isActing ? '...' : 'DECLINE'}
+                        </button>
+                    )}
                   </div>
                 )}
               </div>

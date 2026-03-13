@@ -42,13 +42,6 @@ const Login = () => {
   return (
     <div className="relative min-h-[70vh] flex justify-center items-center">
       {/* Background Image with Overlay */}
-      <div 
-        className="fixed inset-0 z-0 bg-cover bg-no-repeat" 
-        style={{ backgroundImage: 'url("/login-bg.jpg")', backgroundPosition: 'center 15%' }}
-      >
-        <div className="absolute inset-0 bg-black/20"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-black/40"></div>
-      </div>
 
       <div className="glass-card p-10 border border-stranger-red/30 neon-border max-w-md w-full relative z-10 overflow-hidden shadow-[0_0_50px_rgba(229,9,20,0.2)]">
         {/* Decorative corner pieces */}

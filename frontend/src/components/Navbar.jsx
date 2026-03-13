@@ -11,18 +11,31 @@ const Navbar = () => {
   const [unreadCount, setUnreadCount] = useState(0);
 
   useEffect(() => {
-    if (isAuthenticated) {
+    if (isAuthenticated && user) {
       fetchUnreadCount();
-      
+
+      // Ensure socket is connected and personal room is joined
+      if (!socket.connected) {
+        socket.connect();
+      }
+      socket.emit('setup', user);
+
       socket.on('new_notification', () => {
         setUnreadCount(prev => prev + 1);
       });
-    }
 
-    return () => {
-      socket.off('new_notification');
-    };
-  }, [isAuthenticated]);
+      // Re-join personal room on reconnect
+      const handleReconnect = () => {
+        socket.emit('setup', user);
+      };
+      socket.on('connect', handleReconnect);
+
+      return () => {
+        socket.off('new_notification');
+        socket.off('connect', handleReconnect);
+      };
+    }
+  }, [isAuthenticated, user]);
 
   const fetchUnreadCount = async () => {
     try {
@@ -41,51 +54,59 @@ const Navbar = () => {
   };
 
   return (
-    <nav className="bg-[#050000] border-b border-stranger-red shadow-[0_0_20px_rgba(255,0,0,0.3)] sticky top-0 z-50" style={{ backgroundImage: 'linear-gradient(rgba(255, 0, 0, 0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(255, 0, 0, 0.03) 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
-      <div className="container mx-auto px-4 py-3 flex justify-between items-center relative z-10">
-        <Link to="/" className="text-2xl font-bold tracking-widest text-stranger-red drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] uppercase flex items-center gap-2">
-          <MonitorPlay size={28} />
-          Cerebro Sync
+    <nav className="glass-card border-b border-stranger-red/30 sticky top-0 z-50 backdrop-blur-xl">
+      <div className="container mx-auto px-6 py-4 flex justify-between items-center relative z-10">
+        <Link to="/" className="group flex items-center gap-3">
+          <div className="relative">
+            <MonitorPlay size={32} className="text-stranger-red drop-shadow-[0_0_8px_rgba(229,9,20,0.8)] group-hover:scale-110 transition-transform duration-300" />
+            <div className="absolute -inset-1 bg-stranger-red/20 blur-sm rounded-full opacity-0 group-hover:opacity-100 transition-opacity"></div>
+          </div>
+          <span className="hidden md:block stranger-title text-xl">Cerebro Sync</span>
         </Link>
         
         {isAuthenticated && user ? (
-          <div className="flex items-center gap-6">
-             <Link to="/friends" className="flex flex-col items-center text-stranger-red hover:text-[#fff] hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all">
-              <Users size={20} />
-              <span className="text-xs mt-1 tracking-widest uppercase">Friends</span>
+          <div className="flex items-center gap-8">
+             <Link to="/friends" className="flex flex-col items-center group text-gray-400 hover:text-stranger-red transition-all duration-300">
+              <Users size={22} className="group-hover:translate-y-[-2px] transition-transform" />
+              <span className="text-[10px] mt-1 font-orbitron tracking-widest uppercase">Network</span>
             </Link>
-            <Link to="/events" className="flex flex-col items-center text-stranger-red hover:text-[#fff] hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all">
-              <Calendar size={20} />
-              <span className="text-xs mt-1 tracking-widest uppercase">Events</span>
+            <Link to="/events" className="flex flex-col items-center group text-gray-400 hover:text-stranger-red transition-all duration-300">
+              <Calendar size={22} className="group-hover:translate-y-[-2px] transition-transform" />
+              <span className="text-[10px] mt-1 font-orbitron tracking-widest uppercase">Archive</span>
             </Link>
-            <Link to="/notifications" className="flex flex-col items-center text-stranger-red hover:text-[#fff] hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all relative">
-              <Bell size={20} />
-              <span className="text-xs mt-1 tracking-widest uppercase">Signals</span>
+            <Link to="/notifications" className="flex flex-col items-center group text-gray-400 hover:text-stranger-red transition-all duration-300 relative">
+              <Bell size={22} className="group-hover:translate-y-[-2px] transition-transform" />
+              <span className="text-[10px] mt-1 font-orbitron tracking-widest uppercase">Signals</span>
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-2 bg-stranger-red text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse border border-stranger-red font-bold shadow-[0_0_10px_rgba(255,0,0,0.8)]">
+                <span className="absolute -top-1 -right-2 bg-stranger-red text-black text-[10px] w-4 h-4 rounded-full flex items-center justify-center animate-pulse border border-stranger-red font-black shadow-[0_0_10px_rgba(229,9,20,0.8)]">
                   {unreadCount}
                 </span>
               )}
             </Link>
-            <Link to="/profile" className="flex flex-col items-center text-stranger-red hover:text-[#fff] hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all">
-              <User size={20} />
-              <span className="text-xs mt-1 tracking-widest uppercase">Profile</span>
+            <Link to="/profile" className="flex flex-col items-center group text-gray-400 hover:text-stranger-red transition-all duration-300">
+              <img 
+                src={user?.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} 
+                alt="Profile" 
+                className="w-10 h-10 rounded-full border border-stranger-red/50 object-cover shadow-[0_0_10px_rgba(229,9,20,0.3)]"
+              />
+              <span className="text-[10px] mt-1 font-orbitron tracking-widest uppercase">Agent</span>
             </Link>
             <button 
               onClick={handleLogout}
-              className="flex flex-col items-center text-stranger-red hover:text-[#fff] hover:drop-shadow-[0_0_10px_rgba(255,0,0,0.8)] transition-all"
+              className="flex flex-col items-center group text-red-900 hover:text-red-500 transition-all duration-300"
             >
-              <LogOut size={20} />
-              <span className="text-xs mt-1 tracking-widest uppercase">Escape</span>
+              <LogOut size={22} className="group-hover:rotate-12 transition-transform" />
+              <span className="text-[10px] mt-1 font-orbitron tracking-widest uppercase">Terminate</span>
             </button>
           </div>
         ) : (
-          <div className="flex gap-4">
-            <Link to="/login" className="px-4 py-2 border border-stranger-red text-stranger-red hover:bg-[rgba(255,0,0,0.1)] hover:shadow-[inset_0_0_10px_rgba(255,0,0,0.3)] transition-all uppercase text-sm tracking-widest font-bold">
-              Login
+          <div className="flex gap-6 items-center">
+            <Link to="/login" className="font-orbitron text-xs tracking-[0.2em] text-gray-400 hover:text-white transition-all uppercase px-2 py-1">
+              Access
             </Link>
-            <Link to="/register" className="px-4 py-2 bg-transparent border border-stranger-red text-stranger-red hover:bg-stranger-red hover:text-black hover:shadow-[0_0_15px_rgba(255,0,0,0.8)] transition-all uppercase text-sm tracking-widest font-bold">
-              Join Club
+            <Link to="/register" className="relative group px-6 py-2 bg-stranger-red text-black font-orbitron uppercase text-[10px] tracking-[0.2em] font-black hover:bg-white transition-all duration-500 overflow-hidden">
+              <span className="relative z-10">Initialize Record</span>
+              <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-700"></div>
             </Link>
           </div>
         )}
