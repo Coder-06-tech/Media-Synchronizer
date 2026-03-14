@@ -8,6 +8,7 @@ const VideoPlayer = ({
     onPlay, 
     onPause, 
     onSeek, 
+    onTimeUpdate,
     currentTimestamp, 
     playingState,
     remoteStream
@@ -17,7 +18,7 @@ const VideoPlayer = ({
     const containerRef = useRef(null);
     const [isPlaying, setIsPlaying] = useState(false);
     const [volume, setVolume] = useState(1);
-    const [isMuted, setIsMuted] = useState(false);
+    const [isMuted, setIsMuted] = useState(!isBroadcaster);
     const [currentTime, setCurrentTime] = useState(0);
     const [duration, setDuration] = useState(0);
 
@@ -182,7 +183,10 @@ const VideoPlayer = ({
                         muted={isMuted}
                         width="100%"
                         height="100%"
-                        onProgress={(state) => setCurrentTime(state.playedSeconds)}
+                        onProgress={(state) => {
+                            setCurrentTime(state.playedSeconds);
+                            if (isBroadcaster && onTimeUpdate) onTimeUpdate(state.playedSeconds);
+                        }}
                         onDuration={(d) => setDuration(d)}
                         progressInterval={1000}
                         config={{
@@ -195,7 +199,13 @@ const VideoPlayer = ({
                     ref={videoRef}
                     src={videoUrl === 'local_stream' ? undefined : (videoUrl || undefined)}
                     className="w-full h-full object-contain"
-                    onTimeUpdate={() => videoRef.current && setCurrentTime(videoRef.current.currentTime)}
+                    onTimeUpdate={() => {
+                        if (videoRef.current) {
+                            const time = videoRef.current.currentTime;
+                            setCurrentTime(time);
+                            if (isBroadcaster && onTimeUpdate) onTimeUpdate(time);
+                        }
+                    }}
                     onLoadedMetadata={() => videoRef.current && setDuration(videoRef.current.duration)}
                     autoPlay={!isBroadcaster}
                     muted={isMuted}
@@ -235,8 +245,17 @@ const VideoPlayer = ({
                                 </button>
                             </div>
                         ) : (
-                            <div className="text-[10px] font-orbitron tracking-[0.2em] text-stranger-red px-3 py-1 border border-stranger-red/30 bg-stranger-red/5">
-                                {playingState === 'playing' ? 'FEED: ACTIVE' : 'FEED: STALLED'}
+                            <div className="flex items-center gap-2">
+                                <div className="text-[10px] font-orbitron tracking-[0.2em] text-stranger-red px-3 py-1 border border-stranger-red/30 bg-stranger-red/5">
+                                    {playingState === 'playing' ? 'FEED: ACTIVE' : 'FEED: STALLED'}
+                                </div>
+                                <button 
+                                    onClick={() => onSeek && onSeek(currentTimestamp)} 
+                                    className="text-[8px] font-orbitron tracking-widest text-gray-500 hover:text-white border border-gray-800 hover:border-white px-2 py-1 transition-all"
+                                    title="Protocol: Force Sync"
+                                >
+                                    RE-SYNC
+                                </button>
                             </div>
                         )}
                         

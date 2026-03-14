@@ -54,6 +54,12 @@ if (process.env.REDIS_URL) {
 // App level socket io instance
 app.set('io', io);
 
+// Basic Request Logger for debugging
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
+});
+
 // Routes
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);

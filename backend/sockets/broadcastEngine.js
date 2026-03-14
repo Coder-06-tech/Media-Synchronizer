@@ -68,9 +68,9 @@ const setupBroadcastEngine = async (io, socket) => {
     });
 
     socket.on('play_video', async (data) => {
-        const { roomId, timestamp } = data;
-        await updateSession(roomId, { isPlaying: true, timestamp });
-        socket.to(roomId).emit('play_video', { timestamp });
+        const { roomId, timestamp, url } = data;
+        await updateSession(roomId, { isPlaying: true, timestamp, videoUrl: url });
+        socket.to(roomId).emit('play_video', { timestamp, url });
     });
 
     socket.on('pause_video', async (data) => {

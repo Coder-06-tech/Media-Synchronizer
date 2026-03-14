@@ -22,4 +22,19 @@ api.interceptors.request.use(
   }
 );
 
+// Response interceptor for API calls
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // If unauthorized, clear the store and redirect to login
+      useAuthStore.getState().logout();
+      window.location.href = '/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
 export default api;

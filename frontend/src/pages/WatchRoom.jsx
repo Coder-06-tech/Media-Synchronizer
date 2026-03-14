@@ -10,6 +10,18 @@ import { Users, Wifi, AlertTriangle, List, Plus, Trash2, Search, Link as LinkIco
 
 const STUN_SERVER = 'stun:stun.l.google.com:19302';
 
+const LocalVideoPreview = ({ stream }) => {
+    const videoRef = useRef(null);
+    useEffect(() => {
+        if (videoRef.current && stream) {
+            if (videoRef.current.srcObject !== stream) {
+                videoRef.current.srcObject = stream;
+            }
+        }
+    }, [stream]);
+    return <video ref={videoRef} autoPlay muted playsInline className="w-full h-full object-cover" />;
+};
+
 const WatchRoom = () => {
     const { roomId } = useParams();
     const { user } = useAuthStore();
@@ -24,6 +36,9 @@ const WatchRoom = () => {
     const [remoteStreams, setRemoteStreams] = useState({});
     const peerConnections = useRef({});
     const activePeers = useRef(new Set());
+    const dataChannelIntervals = useRef({});
+    const dataChannels = useRef({});
+    const authoritativeTimeRef = useRef(0);
     
     // Sync State
     const [videoUrl, setVideoUrl] = useState('');
@@ -75,6 +90,13 @@ const WatchRoom = () => {
             if (localStream) {
                 localStream.getTracks().forEach(track => track.stop());
             }
+            const existing = document.getElementById('broadcaster-stream-source');
+            if (existing) {
+                existing.pause();
+                existing.src = "";
+                existing.load();
+                existing.remove();
+            }
             api.post(`/rooms/${roomId}/leave`).catch(e=>console.log(e));
         };
     }, [roomId, user._id, navigate]);
@@ -87,7 +109,11 @@ const WatchRoom = () => {
             addLog(`New subject detected: ${userId.slice(-6)}`, 'warning');
             activePeers.current.add(userId);
             setParticipants(prev => (Array.isArray(prev) && !prev.includes(userId)) ? [...prev, userId] : prev);
+            
+            // If we are already broadcasting when someone joins, they will hear 'broadcaster_live' 
+            // or they can request it manually. To be robust, let's treat join as a request if we're live.
             if (isBroadcaster && localStream) {
+                addLog(`Auto-uplink for new subject: ${userId.slice(-6)}`, 'success');
                 const pc = createPeerConnection(userId, localStream);
                 peerConnections.current[userId] = pc;
                 const offer = await pc.createOffer();
@@ -106,23 +132,14 @@ const WatchRoom = () => {
             }
         });
 
-        // -------------------------------------------------------------
-        // NEW WEBRTC SIGNALING PATTERN (TannerGabriel Reference)
-        // -------------------------------------------------------------
-
-        // 1. Broadcaster Announces Feed is Active
-        socket.on('broadcaster_live', ({ broadcasterId }) => {
-            if (!isBroadcaster && !peerConnections.current[broadcasterId]) {
-                addLog(`Broadcaster feed available: Requesting Uplink`, 'warning');
-                // Listener asks for a connection
-                socket.emit('watcher_request', { roomId });
-            }
-        });
-
         // 2. Broadcaster Receives Watcher Request & Initiates Offer
         socket.on('watcher_request', async ({ watcherId }) => {
             if (isBroadcaster && localStream) {
-                addLog(`Authorizing new watcher uplink: ${watcherId.slice(-6)}`, 'success');
+                if (peerConnections.current[watcherId]) {
+                    peerConnections.current[watcherId].close();
+                }
+                
+                addLog(`Authorizing requested uplink: ${watcherId.slice(-6)}`, 'success');
                 activePeers.current.add(watcherId);
                 const pc = createPeerConnection(watcherId, localStream);
                 peerConnections.current[watcherId] = pc;
@@ -134,6 +151,14 @@ const WatchRoom = () => {
                 } catch (err) {
                     console.error("Offer creation failed", err);
                 }
+            }
+        });
+
+        socket.on('broadcaster_live', ({ broadcasterId }) => {
+            if (!isBroadcaster && !peerConnections.current[broadcasterId]) {
+                addLog(`Inbound broadcast signal: Negotiating Uplink`, 'warning');
+                // Listener asks for a connection
+                socket.emit('watcher_request', { roomId });
             }
         });
 
@@ -230,7 +255,10 @@ const WatchRoom = () => {
 
         socket.on('pong_health', ({ timestamp }) => {
              const rt = Date.now() - timestamp;
-             setLatency(rt);
+             // Only use socket latency for the broadcaster's own health status display
+             if (isBroadcaster) {
+                setLatency(rt);
+             }
              setHealthStatus(rt > 500 ? 'warning' : 'connected');
         });
 
@@ -287,21 +315,29 @@ const WatchRoom = () => {
             if (!isBroadcaster) socket.emit('sync_request', { roomId });
         }, 5000);
 
-        // Production Heartbeat Pulse (Every 3 seconds)
-        const pulseInterval = setInterval(() => {
-            if (isBroadcaster && playingState === 'playing') {
-                socket.emit('sync_pulse', { roomId, timestamp: currentTimestamp, userId: user._id });
-            }
-        }, 3000);
-
         // Fetch friends for inviting
         api.get('/friends').then(({ data }) => setFriends(data)).catch(e => console.log(e));
 
-        return () => {
-            clearInterval(interval);
-            clearInterval(pulseInterval);
-        };
-    }, [roomId, isBroadcaster, socket, playingState, currentTimestamp]);
+        return () => clearInterval(interval);
+    }, [roomId, isBroadcaster, socket]);
+
+    // Isolated Heartbeat Pulse (Every 3 seconds) - Doesn't depend on currentTimestamp state
+    useEffect(() => {
+        if (!socket || !isBroadcaster) return;
+        
+        const pulseInterval = setInterval(() => {
+            if (playingState === 'playing') {
+                socket.emit('sync_pulse', { 
+                    roomId, 
+                    timestamp: authoritativeTimeRef.current, 
+                    userId: user._id 
+                });
+                addLog(`Broadcasting Pulse: ${Math.round(authoritativeTimeRef.current)}s`, 'system');
+            }
+        }, 3000);
+
+        return () => clearInterval(pulseInterval);
+    }, [roomId, isBroadcaster, socket, playingState]);
 
     useEffect(() => {
         if (!socket) return;
@@ -322,36 +358,135 @@ const WatchRoom = () => {
     // Helper: Peer Connection
     const createPeerConnection = (partnerId, stream) => {
         const pc = new RTCPeerConnection({ iceServers: [{ urls: STUN_SERVER }] });
+        
         pc.onicecandidate = (event) => {
             if (event.candidate) socket.emit('ice_candidate', { roomId, candidate: event.candidate, receiverId: partnerId });
         };
+
         if (stream) stream.getTracks().forEach(track => pc.addTrack(track, stream));
         pc.ontrack = (event) => setRemoteStreams(prev => ({ ...prev, [partnerId]: event.streams[0] }));
+
+        // DataChannel for Latency (Broadcaster perspective)
+        if (isBroadcaster) {
+            const dc = pc.createDataChannel('latency');
+            dataChannels.current[partnerId] = dc;
+            
+            dc.onopen = () => {
+                const interval = setInterval(() => {
+                    if (dc.readyState === 'open') {
+                        dc.send(Date.now().toString());
+                    }
+                }, 1000);
+                dataChannelIntervals.current[partnerId] = interval;
+            };
+
+            dc.onclose = () => {
+                clearInterval(dataChannelIntervals.current[partnerId]);
+                delete dataChannelIntervals.current[partnerId];
+                delete dataChannels.current[partnerId];
+            };
+        } else {
+            // Viewer perspective: Handle incoming data channel
+            pc.ondatachannel = (event) => {
+                const dc = event.channel;
+                if (dc.label === 'latency') {
+                    dc.onmessage = (e) => {
+                        const sentTime = parseInt(e.data);
+                        const currentLatency = Date.now() - sentTime;
+                        setLatency(currentLatency);
+                    };
+                }
+            };
+        }
+
         return pc;
     };
 
-    // 4. Feature Actions
+    // 4. Feature Actions: Stream Broadcasting logic
+    const broadcastStream = async (stream) => {
+        if (!stream) return;
+        
+        // 1. Update all existing peer connections
+        const pcEntries = Object.entries(peerConnections.current);
+        addLog(`Synchronizing ${pcEntries.length} peer pathways`, 'system');
+
+        for (const [peerId, pc] of pcEntries) {
+            try {
+                const senders = pc.getSenders();
+                stream.getTracks().forEach(track => {
+                    const sender = senders.find(s => s.track && s.track.kind === track.kind);
+                    if (sender) {
+                        sender.replaceTrack(track);
+                    } else {
+                        pc.addTrack(track, stream);
+                    }
+                });
+
+                // Renitialize negotiation for this peer
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socket.emit('offer', { roomId, offer, receiverId: peerId });
+            } catch (err) {
+                console.warn(`Peer sync failed for ${peerId.slice(-6)}:`, err);
+            }
+        }
+
+        // 2. Ensure any active peers without a connection get one
+        activePeers.current.forEach(async (peerId) => {
+            if (!peerConnections.current[peerId]) {
+                const pc = createPeerConnection(peerId, stream);
+                peerConnections.current[peerId] = pc;
+                const offer = await pc.createOffer();
+                await pc.setLocalDescription(offer);
+                socket.emit('offer', { roomId, offer, receiverId: peerId });
+            }
+        });
+
+        // 3. Announce to any new listeners that we are live
+        socket.emit('broadcaster_live', { roomId });
+    };
+
     const handleFileSelect = (e) => {
         const file = e.target.files[0];
         if (!file) return;
-        const url = URL.createObjectURL(file);
-        setVideoUrl(url);
+        const fileUrl = URL.createObjectURL(file);
         
-        // Native local file streaming logic
+        // Remove any existing stream source
+        const existing = document.getElementById('broadcaster-stream-source');
+        if (existing) {
+            existing.pause();
+            existing.src = "";
+            existing.load();
+            existing.remove();
+        }
+
+        // Create a managed hidden video element for the stream capture
         const hiddenVideo = document.createElement('video');
-        hiddenVideo.src = url;
+        hiddenVideo.id = 'broadcaster-stream-source';
+        hiddenVideo.style.display = 'none';
+        hiddenVideo.src = fileUrl;
         hiddenVideo.muted = true;
+        hiddenVideo.loop = true; // Essential to keep the stream alive
+        document.body.appendChild(hiddenVideo);
+        
         hiddenVideo.play().then(() => {
              const stream = hiddenVideo.captureStream ? hiddenVideo.captureStream() : hiddenVideo.mozCaptureStream ? hiddenVideo.mozCaptureStream() : null;
              if (stream) {
+                 // Stop any previous local tracks
+                 localStream?.getTracks().forEach(t => t.stop());
+                 
                  setLocalStream(stream);
                  addLog("LOCAL FILE SIGNAL UPLINK ACTIVE", "success");
+                 setPlayingState('playing');
+                 setCurrentTimestamp(0);
                  socket.emit('play_video', { roomId, timestamp: 0, url: 'local_stream' });
                  
-                 // Broadcast to all that the stream is ready
-                 socket.emit('broadcaster_live', { roomId });
+                 broadcastStream(stream);
              }
         });
+
+        // Update the main player URL
+        setVideoUrl(fileUrl);
     };
 
     const toggleCamera = async () => {
@@ -359,16 +494,17 @@ const WatchRoom = () => {
             localStream?.getTracks().forEach(t => t.stop());
             setLocalStream(null);
             setCameraActive(false);
+            setPlayingState('paused');
             addLog("NEURAL CAMERA FEED CUT", "warning");
         } else {
             try {
                 const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
                 setLocalStream(stream);
                 setCameraActive(true);
+                setPlayingState('playing');
                 addLog("NEURAL CAMERA FEED ESTABLISHED", "success");
                 
-                // Announce that the camera feed is ready and waiting for watcher requests
-                socket.emit('broadcaster_live', { roomId });
+                broadcastStream(stream);
             } catch (err) {
                 console.error("Camera failed", err);
                 addLog("CAMERA UPLINK FAILED: PERMISSION DENIED", "danger");
@@ -427,20 +563,28 @@ const WatchRoom = () => {
     };
 
     // Video Control Wrappers
+    const handleTimeUpdate = (time) => {
+        setCurrentTimestamp(time);
+        authoritativeTimeRef.current = time;
+    };
+
     const handlePlay = (time) => {
         setPlayingState('playing');
         setCurrentTimestamp(time);
+        authoritativeTimeRef.current = time;
         socket.emit('play_video', { roomId, timestamp: time });
     };
 
     const handlePause = (time) => {
         setPlayingState('paused');
         setCurrentTimestamp(time);
+        authoritativeTimeRef.current = time;
         socket.emit('pause_video', { roomId, timestamp: time });
     };
 
     const handleSeek = (time) => {
         setCurrentTimestamp(time);
+        authoritativeTimeRef.current = time;
         socket.emit('seek_video', { roomId, timestamp: time });
     };
 
@@ -474,10 +618,18 @@ const WatchRoom = () => {
 
                 <div className="flex flex-wrap gap-8 items-center border-l border-white/10 pl-8">
                     <div className="flex flex-col gap-1">
-                        <span className="text-[8px] font-orbitron text-gray-600 tracking-widest">SIGNAL LATENCY</span>
+                        <span className="text-[8px] font-orbitron text-gray-600 tracking-widest uppercase">Latency</span>
                         <div className="flex items-center gap-2">
-                            <div className={`w-1.5 h-1.5 rounded-full ${latency > 500 ? 'bg-red-500 animate-pulse' : 'bg-green-500'}`}></div>
-                            <span className={`font-mono text-sm ${latency > 500 ? 'text-red-500' : 'text-green-500'}`}>{latency}ms</span>
+                            <div className={`w-1.5 h-1.5 rounded-full ${
+                                latency < 100 ? 'bg-green-500' : 
+                                latency <= 300 ? 'bg-yellow-500' : 
+                                'bg-red-500 animate-pulse'
+                            }`}></div>
+                            <span className={`font-mono text-sm ${
+                                latency < 100 ? 'text-green-500' : 
+                                latency <= 300 ? 'text-yellow-500' : 
+                                'text-red-500'
+                            }`}>{latency} ms</span>
                         </div>
                     </div>
                     
@@ -583,6 +735,7 @@ const WatchRoom = () => {
                                 onPlay={handlePlay}
                                 onPause={handlePause}
                                 onSeek={handleSeek}
+                                onTimeUpdate={handleTimeUpdate}
                                 playingState={playingState}
                                 remoteStream={Object.values(remoteStreams)[0]}
                             />
@@ -591,9 +744,9 @@ const WatchRoom = () => {
                         {/* WebRTC Overlay for Broadcaster */}
                         {isBroadcaster && localStream && (
                             <div className="absolute top-4 right-4 w-48 aspect-video border-2 border-stranger-red shadow-[0_0_20px_rgba(229,9,20,0.4)] z-30 bg-black overflow-hidden group/pip">
-                                <video ref={v => v && (v.srcObject = localStream)} autoPlay muted playsInline className="w-full h-full object-cover" />
+                                <LocalVideoPreview stream={localStream} />
                                 <div className="absolute inset-0 bg-stranger-red/10 opacity-0 group-hover/pip:opacity-100 transition-opacity pointer-events-none"></div>
-                                <div className="absolute bottom-1 left-2 text-[8px] font-orbitron text-stranger-red tracking-widest">AUTHORITY_FEED</div>
+                                <div className="absolute bottom-1 left-2 text-[8px] font-orbitron text-stranger-red tracking-widest uppercase italic">Authority_Feed</div>
                             </div>
                         )}
 
