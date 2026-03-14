@@ -9,15 +9,6 @@ const setupSignalingSockets = (io, socket) => {
     }
   });
 
-  // WebRTC Signaling
-  socket.on('join_room', (data) => {
-  // Support both object { roomId, ... } and plain string formats
-    const roomId = typeof data === 'object' ? data.roomId : data;
-    socket.join(roomId);
-    socket.to(roomId).emit('user_joined', { userId: socket.id });
-    console.log(`User ${socket.id} joined room ${roomId}`);
-  });
-
   // Explicit Broadcaster Handshake Flow (TannerGabriel pattern)
   socket.on('broadcaster_live', (data) => {
     socket.to(data.roomId).emit('broadcaster_live', { broadcasterId: socket.id });

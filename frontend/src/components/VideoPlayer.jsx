@@ -79,7 +79,9 @@ const VideoPlayer = ({
     useEffect(() => {
         if (!isBroadcaster && remoteStream && videoRef.current && !isOnlineVideo) {
             if (videoRef.current.srcObject !== remoteStream) {
+                console.log('[VideoPlayer] Assigning remoteStream to video element');
                 videoRef.current.srcObject = remoteStream;
+                videoRef.current.play().catch(e => console.warn('Remote stream autoplay prevented:', e));
             }
         }
     }, [isBroadcaster, remoteStream, isOnlineVideo]);

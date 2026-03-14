@@ -44,12 +44,16 @@ const setupBroadcastEngine = async (io, socket) => {
         const userId = typeof data === 'object' ? data.userId : null;
 
         socket.join(roomId);
+        console.log(`[BROADCAST] User ${socket.id} joined room ${roomId} (broadcaster: ${isBroadcaster})`);
+        
+        // Notify other users in the room
+        socket.to(roomId).emit('user_joined', { userId: socket.id });
         
         // Return current state to NEW joining client (Initial Sync)
         const state = await getSession(roomId);
         
         if (isBroadcaster && userId) {
-            await updateSession(roomId, { broadcasterId: userId });
+            await updateSession(roomId, { broadcasterId: userId, broadcasterSocketId: socket.id });
         }
 
         if (state) {
@@ -59,6 +63,12 @@ const setupBroadcastEngine = async (io, socket) => {
                 isPlaying: state.isPlaying,
                 viewers: io.sockets.adapter.rooms.get(roomId)?.size || 0
             });
+            
+            // If a broadcast is already active, tell the new joiner
+            // so they can request the WebRTC stream
+            if (!isBroadcaster && state.broadcasterSocketId) {
+                socket.emit('broadcaster_live', { broadcasterId: state.broadcasterSocketId });
+            }
         }
 
         // Broadcast updated viewer count

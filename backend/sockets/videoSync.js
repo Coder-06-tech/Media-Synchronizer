@@ -1,26 +1,18 @@
 const setupVideoSyncSockets = (io, socket) => {
   
-  socket.on('play_video', (data) => {
-    // Only broadcaster should emit this ideally
-    socket.to(data.roomId).emit('play_video', { timestamp: data.timestamp, url: data.url });
-  });
-
-  socket.on('pause_video', (data) => {
-    socket.to(data.roomId).emit('pause_video', { timestamp: data.timestamp });
-  });
-
-  socket.on('seek_video', (data) => {
-    socket.to(data.roomId).emit('seek_video', { timestamp: data.timestamp });
-  });
-
+  // sync_request / sync_response are handled here because they need direct socket targeting
   socket.on('sync_request', (data) => {
-    // A listener request sync from the room
+    // A listener requests sync from the broadcaster in the room
     socket.to(data.roomId).emit('sync_request', { senderId: socket.id });
   });
 
   socket.on('sync_response', (data) => {
-    // Broadcaster responds with current time
-    io.to(data.requesterId).emit('sync_response', { timestamp: data.timestamp, playingState: data.playingState });
+    // Broadcaster responds to a specific requester with full state
+    io.to(data.requesterId).emit('sync_response', { 
+      timestamp: data.timestamp, 
+      playingState: data.playingState,
+      videoUrl: data.videoUrl 
+    });
   });
 
   // Heartbeat ping/pong for connection health
