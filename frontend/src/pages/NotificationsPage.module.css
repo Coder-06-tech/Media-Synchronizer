@@ -31,10 +31,8 @@
   font-size: clamp(2rem, 6vw, 3rem);
   letter-spacing: 0.25em;
   text-transform: uppercase;
-  color: #fff;
-  text-shadow:
-    0 0 8px rgba(255, 7, 58, 0.8),
-    0 0 20px rgba(255, 7, 58, 0.4);
+  color: var(--primary-color);
+  text-shadow: none;
   margin: 0;
   display: flex;
   align-items: center;
@@ -58,8 +56,8 @@
 }
 
 @keyframes pulseBadge {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 7, 58, 0.6); }
-  50%       { box-shadow: 0 0 0 8px rgba(255, 7, 58, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 86, 179, 0.6); }
+  50%       { box-shadow: 0 0 0 8px rgba(0, 86, 179, 0); }
 }
 
 .subtitle {
@@ -75,7 +73,7 @@
   align-items: center;
   gap: 0.4rem;
   background: transparent;
-  border: 1px solid rgba(255, 7, 58, 0.4);
+  border: 1px solid rgba(0, 86, 179, 0.4);
   color: var(--text-muted);
   padding: 0.5rem 1rem;
   font-size: 0.65rem;
@@ -90,7 +88,7 @@
 .clearBtn:hover {
   border-color: var(--primary-color);
   color: var(--primary-color);
-  box-shadow: 0 0 12px rgba(255, 7, 58, 0.2);
+  box-shadow: 0 0 12px rgba(0, 86, 179, 0.2);
 }
 
 /* ── LIST ── */
@@ -106,14 +104,14 @@
   gap: 1rem;
   padding: 1.25rem;
   background: rgba(0, 0, 0, 0.5);
-  border: 1px solid rgba(255, 7, 58, 0.12);
+  border: 1px solid rgba(0, 86, 179, 0.12);
   position: relative;
   transition: border-color 0.25s, box-shadow 0.25s;
   overflow: hidden;
 }
 
 .notifCard:hover {
-  border-color: rgba(255, 7, 58, 0.35);
+  border-color: rgba(0, 86, 179, 0.35);
 }
 
 /* Scanline micro-texture */
@@ -130,7 +128,7 @@
 
 .unread {
   border-left: 3px solid var(--primary-color);
-  box-shadow: 0 0 16px rgba(255, 7, 58, 0.07);
+  box-shadow: 0 0 16px rgba(0, 86, 179, 0.07);
 }
 
 .read {
@@ -159,7 +157,7 @@
 .notifIconWrap {
   width: 40px;
   height: 40px;
-  border: 1px solid rgba(255, 7, 58, 0.3);
+  border: 1px solid rgba(0, 86, 179, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -224,7 +222,7 @@
 
 .acceptBtn:hover:not(:disabled) {
   background: #fff;
-  box-shadow: 0 0 14px rgba(255, 7, 58, 0.5);
+  box-shadow: 0 0 14px rgba(0, 86, 179, 0.5);
 }
 
 .acceptBtn:disabled, .declineBtn:disabled {
@@ -248,7 +246,7 @@
   display: flex;
   gap: 1rem;
   padding: 1.25rem;
-  border: 1px solid rgba(255, 7, 58, 0.08);
+  border: 1px solid rgba(0, 86, 179, 0.08);
   background: rgba(0, 0, 0, 0.3);
   animation: shimmer 1.4s ease-in-out infinite;
 }
@@ -261,7 +259,7 @@
 .skeletonIcon {
   width: 40px;
   height: 40px;
-  background: rgba(255, 7, 58, 0.1);
+  background: rgba(0, 86, 179, 0.1);
   flex-shrink: 0;
 }
 
@@ -275,7 +273,7 @@
 
 .skeletonLine {
   height: 10px;
-  background: rgba(255, 7, 58, 0.08);
+  background: rgba(0, 86, 179, 0.08);
   border-radius: 2px;
 }
 
@@ -283,12 +281,12 @@
 .emptyState {
   text-align: center;
   padding: 5rem 2rem;
-  border: 1px dashed rgba(255, 7, 58, 0.15);
-  background: rgba(255, 7, 58, 0.02);
+  border: 1px dashed rgba(0, 86, 179, 0.15);
+  background: rgba(0, 86, 179, 0.02);
 }
 
 .emptyIcon {
-  color: rgba(255, 7, 58, 0.2);
+  color: rgba(0, 86, 179, 0.2);
   margin: 0 auto 1.25rem;
   display: block;
 }
@@ -297,7 +295,7 @@
   font-size: 0.8rem;
   letter-spacing: 0.35em;
   text-transform: uppercase;
-  color: #444;
+  color: var(--text-color);
   margin: 0 0 0.4rem;
 }
 
@@ -305,5 +303,5 @@
   font-size: 0.65rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: #333;
+  color: var(--text-muted);
 }

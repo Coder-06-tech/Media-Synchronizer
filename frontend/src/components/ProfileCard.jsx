@@ -41,7 +41,7 @@ const ProfileCard = ({ user, actionType = 'add', onAction, isRequested: initialR
           <img 
             src={user?.profilePic || `https://api.dicebear.com/7.x/avataaars/svg?seed=${user?.username}`} 
             alt="Profile" 
-            className="w-10 h-10 rounded-full border border-stranger-red/50 object-cover shadow-[0_0_10px_rgba(229,9,20,0.3)]"
+            className={styles.avatar}
           />
         </div>
       </div>
@@ -89,7 +89,7 @@ const ProfileCard = ({ user, actionType = 'add', onAction, isRequested: initialR
             onClick={handleAction} 
             className={`${styles.friendBtn} ${user.isSelected || isRequested ? styles.selected : styles.addFriend}`}
           >
-            {user.isSelected || isRequested ? 'Subject Selected' : 'Select Subject'}
+            {user.isSelected || isRequested ? 'Selected' : 'Select'}
           </button>
         )}
 
@@ -98,7 +98,7 @@ const ProfileCard = ({ user, actionType = 'add', onAction, isRequested: initialR
             onClick={(e) => { e.preventDefault(); onAction('remove', user._id || user.id); }}
             className={styles.removeBtn}
           >
-            Sever Connection
+            Remove Friend
           </button>
         )}
       </div>

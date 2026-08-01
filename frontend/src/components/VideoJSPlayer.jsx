@@ -90,16 +90,16 @@ const VideoJSPlayer = ({
                 .vjs-custom-theme .vjs-control-bar {
                     background: rgba(0,0,0,0.8) !important;
                     backdrop-filter: blur(10px);
-                    border-top: 1px solid rgba(229, 9, 20, 0.3);
+                    border-top: 1px solid rgba(0, 86, 179, 0.3);
                 }
-                .vjs-custom-theme .vjs-play-progress {
-                    background-color: #e50914 !important;
-                    box-shadow: 0 0 10px rgba(229,9,20,0.5);
+                .video-js .vjs-play-progress,
+                .video-js .vjs-volume-level,
+                .video-js .vjs-slider-bar {
+                    background-color: #0056b3 !important;
                 }
-                .vjs-custom-theme .vjs-slider-bar { background: rgba(255,255,255,0.1); }
                 .vjs-custom-theme .vjs-load-progress { background: rgba(255,255,255,0.05); }
                 .vjs-big-play-centered .vjs-big-play-button {
-                    background-color: rgba(229, 9, 20, 0.9);
+                    background-color: rgba(0, 86, 179, 0.9);
                     border: none;
                     border-radius: 50%;
                     width: 80px;

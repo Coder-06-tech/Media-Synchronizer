@@ -8,10 +8,10 @@ export default {
     extend: {
       colors: {
         stranger: {
-          red: '#E50914',
-          neon: '#ff003c',
-          bg: '#0a0a0c',
-          dark: '#141414',
+          red: '#0056b3',
+          neon: '#0056b3',
+          bg: '#FFFFFF',
+          dark: '#002b5c',
         }
       },
       fontFamily: {

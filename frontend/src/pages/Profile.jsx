@@ -34,10 +34,10 @@ const Profile = () => {
     try {
       const { data } = await api.put('/users/profile', formData);
       updateUser(data);
-      setMessage({ text: 'SUBJECT RECORDS UPDATED SUCCESSFULLY.', type: 'success' });
+      setMessage({ text: 'Profile updated successfully.', type: 'success' });
     } catch (err) {
       console.error(err);
-      setMessage({ text: 'PROTOCOL FAILURE: DATA PERSISTENCE ERROR.', type: 'error' });
+      setMessage({ text: 'Error: Failed to save profile.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -66,10 +66,10 @@ const Profile = () => {
         headers: { 'Content-Type': 'multipart/form-data' }
       });
       setFormData({ ...formData, profilePic: data.url });
-      setMessage({ text: 'VISUAL DATA BUFFERED. COMMIT CHANGES TO PERSIST.', type: 'success' });
+      setMessage({ text: 'Image uploaded. Save profile to apply.', type: 'success' });
     } catch (err) {
       console.error(err);
-      setMessage({ text: 'UPLOAD PROTOCOL FAILURE.', type: 'error' });
+      setMessage({ text: 'Image upload failed.', type: 'error' });
     } finally {
       setLoading(false);
     }
@@ -91,7 +91,7 @@ const Profile = () => {
     return `${dd}/${mm}/${yy} ${hrs}:${mins} ${ampm}`;
   };
 
-  if (!user) return <div className="text-red-500 font-retro p-8">&gt; DECRYPTING DOSSIER...</div>;
+  if (!user) return <div className="text-red-500 font-retro p-8">&gt; Loading Profile...</div>;
 
   return (
     <div className={styles.container}>
@@ -110,17 +110,17 @@ const Profile = () => {
           {/* Header */}
           <header className={styles.header}>
             <div className={styles.headerTitle}>
-              <span>SUBJECT : USER PROFILE</span>
+              <span>USER PROFILE</span>
               <span className={styles.headerDeco}></span>
             </div>
             <button className={styles.recordBtn} onClick={handleSubmit} disabled={loading}>
-              <Edit2 size={16} /> SAVE RECORD
+              <Edit2 size={16} /> SAVE PROFILE
             </button>
           </header>
 
           {/* Toast / Status Message */}
           {message.text && (
-            <div style={{ color: message.type === 'error' ? '#fff' : '#ff003c', border: `1px solid ${message.type === 'error' ? '#fff' : '#ff003c'}`, padding: '10px', marginBottom: '20px', fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
+            <div style={{ color: message.type === 'error' ? '#fff' : '#0056b3', border: `1px solid ${message.type === 'error' ? '#fff' : '#0056b3'}`, padding: '10px', marginBottom: '20px', fontSize: '0.8rem', letterSpacing: '2px', textTransform: 'uppercase' }}>
               &gt; {message.text}
             </div>
           )}
@@ -162,7 +162,7 @@ const Profile = () => {
             {/* Right Column: Form Inputs */}
             <div className={styles.formColumn}>
               <div className={styles.formGroup}>
-                <label className={styles.label}>DESIGNATION LABEL</label>
+                <label className={styles.label}>Full Name</label>
                 <div className={styles.inputWrapper}>
                   <input
                     type="text"
@@ -175,7 +175,7 @@ const Profile = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>NEURAL FREQUENCY (PHONE)</label>
+                <label className={styles.label}>Phone Number</label>
                 <div className={styles.inputWrapper}>
                   <input
                     type="tel"
@@ -188,7 +188,7 @@ const Profile = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>TRANSMISSION NODE (EMAIL)</label>
+                <label className={styles.label}>Email Address</label>
                 <div className={styles.inputWrapper}>
                   <input
                     type="email"
@@ -201,7 +201,7 @@ const Profile = () => {
               </div>
 
               <div className={styles.formGroup}>
-                <label className={styles.label}>SECURITY KEY (PASSWORD)</label>
+                <label className={styles.label}>Password</label>
                 <div className={styles.inputWrapper}>
                   <input
                     type="password"
@@ -215,7 +215,7 @@ const Profile = () => {
 
               <div className={styles.formActions}>
                 <button type="button" className={styles.updateBtn} onClick={handleSubmit} disabled={loading}>
-                  {loading ? 'SYNCING...' : 'UPDATE PROFILE'}
+                  {loading ? 'LOADING...' : 'UPDATE PROFILE'}
                 </button>
                 <button type="button" className={styles.resetBtn} onClick={handleReset} disabled={loading}>
                   RESET CHANGES

@@ -62,3 +62,11 @@ backend/users_db.json
 # Database seeds and scratch scripts
 backend/seed_users_new.js
 backend/test_potential.js
+backend/seed_events.js
+backend/seed_friends.js
+backend/seed_notifications.js
+backend/list_users.js
+replace-colors.js
+replace-colors-light.js
+replace-colors-vsspecs.js
+replace-colors-vsspecs-light.js

@@ -27,7 +27,7 @@ const InitialFriends = () => {
       const { data } = await api.get('/users/potential');
       setPotentialFriends(data);
     } catch (err) {
-      setError('Could not establish secure connection to remote subjects.');
+      setError('Could not load users.');
     } finally {
       setLoading(false);
     }
@@ -43,7 +43,7 @@ const InitialFriends = () => {
 
   const handleSubmit = async () => {
     if (selectedIds.length < 3) {
-      setError('Protocol requires establishing contact with at least 3 subjects.');
+      setError('You must select at least 3 friends to proceed.');
       return;
     }
 
@@ -66,15 +66,15 @@ const InitialFriends = () => {
   };
 
   if (loading && potentialFriends.length === 0) {
-    return <div className="text-center mt-20 text-xl tracking-widest neon-text blink">SCANNING FOR SUBJECTS...</div>;
+    return <div className="text-center mt-20 text-xl tracking-widest neon-text blink">SCANNING FOR FRIENDS...</div>;
   }
 
   return (
     <div className="max-w-6xl mx-auto py-8">
       <div className="text-center mb-10">
-        <h2 className="text-3xl uppercase tracking-widest neon-text mb-4">Initial Network Protocol</h2>
-        <p className="text-gray-400 max-w-2xl mx-auto">
-          Welcome to the program. Before proceeding, you must establish connections with other subjects in the field.
+        <h2 className="text-3xl uppercase tracking-widest neon-text mb-4">Connect with Friends</h2>
+        <p className="text-slate-700 max-w-2xl mx-auto">
+          Welcome! Before proceeding, please choose at least 3 friends to connect with.
           Select <span className="text-white font-bold">{Math.max(0, 3 - selectedIds.length)}</span> more subjects to continue.
         </p>
       </div>
@@ -99,14 +99,14 @@ const InitialFriends = () => {
 
       <div className="sticky bottom-0 bg-black/90 p-4 border-t-2 border-stranger-red mt-12 flex justify-between items-center">
         <div className="text-xl">
-          Connections formed: <span className="text-white font-bold">{selectedIds.length}</span>
+          Selected Friends: <span className="text-white font-bold">{selectedIds.length}</span>
         </div>
         <button
           onClick={handleSubmit}
           disabled={selectedIds.length < 3 || loading}
           className="px-8 py-3 bg-stranger-red text-black uppercase tracking-widest font-bold hover:bg-white transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          {loading ? 'PROCESSING...' : 'INITIALIZE SEQUENCE'}
+          {loading ? 'PROCESSING...' : 'CONFIRM & CONTINUE'}
         </button>
       </div>
     </div>

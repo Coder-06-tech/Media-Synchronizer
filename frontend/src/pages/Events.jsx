@@ -56,6 +56,15 @@ const Events = () => {
     }
   };
 
+  const handleRespondToInvite = async (eventId, status) => {
+    try {
+      await api.put(`/events/${eventId}/respond`, { status });
+      fetchEvents();
+    } catch (error) {
+      console.error('Failed to respond to invite', error);
+    }
+  };
+
   const createInstantRoom = async () => {
     try {
       const { data } = await api.post('/rooms');
@@ -97,14 +106,14 @@ const Events = () => {
       {/* ──────────── HEADER ──────────── */}
       <header className={styles.header}>
         <div className={styles.titleBlock}>
-          <p className={styles.label}>// CEREBRO OPERATION CENTER</p>
+          <p className={styles.label}>// EVENT MANAGEMENT CENTER</p>
           <h1 className={styles.title}>Watch Parties</h1>
           <p className={styles.subtitle}>Synchronized broadcast schedules &amp; events</p>
         </div>
         <div className={styles.actions}>
           <button className={styles.btnOutline} onClick={createInstantRoom}>
             <Zap size={16} />
-            Instant Broadcast
+            Start Instant Room
           </button>
           <button className={styles.btnPrimary} onClick={() => setShowCreateForm(true)}>
             <Calendar size={16} />
@@ -116,12 +125,12 @@ const Events = () => {
       {/* ──────────── EVENTS GRID ──────────── */}
       {loading ? (
         <div className={styles.loadingState}>
-          &gt; Decrypting schedule database...
+          &gt; Loading events...
         </div>
       ) : events.length > 0 ? (
         <>
           <div className={styles.sectionDivider}>
-            <span>Scheduled Operations — {events.length} Found</span>
+            <span>Scheduled Events — {events.length} Found</span>
             <div className={styles.dividerLine} />
           </div>
           <div className={styles.eventsGrid}>
@@ -165,12 +174,21 @@ const Events = () => {
                          } catch (e) { console.error(e); }
                       }}>
                         <Radio size={14} style={{ display:'inline', marginRight:'6px' }} />
-                        Initiate Broadcast
+                        Start Room
                       </button>
                     ) : (() => {
-                        const myResponse = event.responses?.find(r => r.user === user?._id)?.status || 'pending';
+                        const myResponse = event.responses?.find(r => (r.user?._id || r.user)?.toString() === user?._id)?.status || 'pending';
                         if (myResponse === 'pending') {
-                            return <div className={styles.awaitBtn}>&gt; Awaiting your acceptance in Notifications</div>;
+                            return (
+                                <div className="flex gap-2 w-full mt-2">
+                                    <button className={styles.acceptBtn} onClick={() => handleRespondToInvite(event._id, 'accepted')}>
+                                        Accept
+                                    </button>
+                                    <button className={styles.declineBtn} onClick={() => handleRespondToInvite(event._id, 'declined')}>
+                                        Decline
+                                    </button>
+                                </div>
+                            );
                         }
                         if (myResponse === 'declined') {
                             return <div className={styles.awaitBtn}>&gt; Invitation Declined</div>;
@@ -179,17 +197,17 @@ const Events = () => {
                         // Status is Accepted
                         const validTime = isTimeValid(event.date, event.time);
                         if (!validTime) {
-                            return <div className={styles.awaitBtn}>&gt; Restricted: Window Locked Until Schedule</div>;
+                            return <div className={styles.awaitBtn}>&gt; Locked Until Scheduled Time</div>;
                         }
                         
                         if (event.linkedWatchRoom) {
                             return (
                                 <button className={styles.btnPrimary} onClick={() => navigate(`/room/${event.linkedWatchRoom}`)}>
-                                  Join Active Signal
+                                  Join Watch Room
                                 </button>
                             );
                         } else {
-                            return <div className={styles.awaitBtn}>&gt; Awaiting host signal...</div>;
+                            return <div className={styles.awaitBtn}>&gt; Awaiting host...</div>;
                         }
                     })()}
                   </div>
@@ -201,7 +219,7 @@ const Events = () => {
       ) : (
         <div className={styles.emptyState}>
           <Video size={48} className={styles.emptyIcon} />
-          <p className={styles.emptyText}>No Operations Scheduled</p>
+          <p className={styles.emptyText}>No Events Scheduled</p>
           <p className={styles.emptySubtext}>Schedule your first synchronized watch event above</p>
         </div>
       )}
@@ -211,7 +229,7 @@ const Events = () => {
         <div className={styles.modalOverlay} onClick={(e) => e.target === e.currentTarget && setShowCreateForm(false)}>
           <div className={styles.modal}>
             <div className={styles.modalHeader}>
-              <span className={styles.modalTitle}>// New Operation Brief</span>
+              <span className={styles.modalTitle}>// New Event Details</span>
               <button className={styles.closeBtn} onClick={() => setShowCreateForm(false)}>
                 <X size={16} />
               </button>
@@ -260,7 +278,7 @@ const Events = () => {
 
                 {/* Friends Invite */}
                 <div>
-                  <p className={styles.friendsLabel}>Authorized Subjects</p>
+                  <p className={styles.friendsLabel}>Invite Friends</p>
                   {friends.length > 0 ? (
                     <div className={styles.friendsGrid}>
                       {friends.map(f => (
@@ -278,7 +296,7 @@ const Events = () => {
                       ))}
                     </div>
                   ) : (
-                    <p className={styles.noFriends}>No connections in neural directory.</p>
+                    <p className={styles.noFriends}>No friends available.</p>
                   )}
                 </div>
 

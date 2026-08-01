@@ -42,11 +42,11 @@ const Chat = ({ roomId, socket, user }) => {
     return (
         <div className="flex flex-col h-full glass-card border border-stranger-red/30 shadow-2xl relative overflow-hidden min-h-[500px]">
             {/* Chat Header */}
-            <div className="p-4 border-b border-stranger-red/20 bg-black/40 flex items-center justify-between z-10">
+            <div className="p-4 border-b border-stranger-red/20 bg-white/40 flex items-center justify-between z-10">
                 <span className="font-orbitron text-[10px] tracking-[0.2em] text-stranger-red flex items-center gap-2">
                     <ShieldAlert size={14} /> SECURE COMMS
                 </span>
-                <span className="text-[8px] text-gray-500 font-mono hidden md:block">CHANNEL: {roomId.split('-')[0]}</span>
+                <span className="text-[8px] text-slate-600 font-mono hidden md:block">CHANNEL: {roomId.split('-')[0]}</span>
             </div>
 
             {/* Messages Area */}
@@ -56,7 +56,7 @@ const Chat = ({ roomId, socket, user }) => {
             >
                 {chatHistory.length === 0 && (
                     <div className="h-full flex flex-col items-center justify-center opacity-20 pointer-events-none">
-                        <UserIcon size={48} className="text-gray-500 mb-2 truncate" />
+                        <UserIcon size={48} className="text-slate-600 mb-2 truncate" />
                         <p className="text-[10px] font-orbitron tracking-widest">AWAITING TRANSMISSIONS...</p>
                     </div>
                 )}
@@ -68,7 +68,7 @@ const Chat = ({ roomId, socket, user }) => {
                             ) : (
                                 <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${msg.sender.name}`} alt="" className="w-4 h-4 rounded-full border border-gray-600" />
                             )}
-                            <span className="text-[10px] uppercase font-orbitron tracking-tighter text-gray-500">
+                            <span className="text-[10px] uppercase font-orbitron tracking-tighter text-slate-600">
                                 {msg.sender.name}
                             </span>
                             <span className="text-[8px] text-gray-700 font-mono">
@@ -77,8 +77,8 @@ const Chat = ({ roomId, socket, user }) => {
                         </div>
                         <div className={`max-w-[85%] px-4 py-3 text-sm font-outfit leading-relaxed shadow-lg ${
                             msg.sender.id === user._id 
-                            ? 'bg-stranger-red/10 border-r-2 border-stranger-red text-red-100 rounded-l-lg' 
-                            : 'bg-white/5 border-l-2 border-gray-500 text-gray-300 rounded-r-lg'
+                            ? 'bg-stranger-red/10 border-r-2 border-stranger-red text-slate-900 rounded-l-lg' 
+                            : 'bg-slate-200/40 border-l-2 border-gray-500 text-slate-800 rounded-r-lg'
                         }`}>
                             {msg.text}
                         </div>
@@ -87,17 +87,17 @@ const Chat = ({ roomId, socket, user }) => {
             </div>
 
             {/* Input Area */}
-            <form onSubmit={handleSendMessage} className="p-4 bg-black/60 border-t border-stranger-red/20 flex gap-2 relative z-10">
+            <form onSubmit={handleSendMessage} className="p-4 bg-white/60 border-t border-stranger-red/20 flex gap-2 relative z-10">
                 <input 
                     type="text"
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="TYPE MESSAGE..."
-                    className="flex-1 bg-transparent border-b border-stranger-red/40 p-2 text-xs text-white font-outfit focus:border-stranger-red outline-none transition-all"
+                    className="flex-1 bg-transparent border-b border-stranger-red/40 p-2 text-xs text-slate-900 font-outfit focus:border-stranger-red outline-none transition-all"
                 />
                 <button 
                     type="submit"
-                    className="p-2 bg-stranger-red text-black hover:bg-white transition-colors duration-300 shadow-[0_0_15px_rgba(229,9,20,0.3)]"
+                    className="p-2 bg-stranger-red text-black hover:bg-white transition-colors duration-300 shadow-[0_0_15px_rgba(0, 86, 179,0.3)]"
                 >
                     <Send size={16} />
                 </button>

@@ -163,14 +163,14 @@ const VideoPlayer = ({
     };
 
     return (
-        <div ref={containerRef} className="relative group bg-black border-2 border-stranger-red/50 overflow-hidden shadow-[0_0_30px_rgba(229,9,20,0.2)] ring-1 ring-stranger-red/20 w-full h-full flex items-center justify-center">
+        <div ref={containerRef} className="relative group bg-black border-2 border-stranger-red/50 overflow-hidden shadow-[0_0_30px_rgba(0, 86, 179,0.2)] ring-1 ring-stranger-red/20 w-full h-full flex items-center justify-center">
             {!videoUrl && !remoteStream && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center bg-[#050507] z-10">
                     <div className="relative mb-6">
                         <FileVideo size={64} className="text-gray-800" />
                         <div className="absolute inset-0 bg-stranger-red/10 blur-xl rounded-full"></div>
                     </div>
-                    <p className="text-gray-500 text-[10px] font-orbitron tracking-[0.4em] animate-pulse uppercase">Searching for Signal...</p>
+                    <p className="text-slate-600 text-[10px] font-orbitron tracking-[0.4em] animate-pulse uppercase">Searching for Signal...</p>
                     {isBroadcaster && <p className="text-[8px] text-stranger-red/60 mt-4 font-outfit uppercase tracking-widest text-center px-4">Input Media Source below or Upload Local File in Terminal</p>}
                 </div>
             )}
@@ -223,7 +223,7 @@ const VideoPlayer = ({
                     onClick={handleSeek}
                 >
                     <div 
-                        className="h-full bg-stranger-red shadow-[0_0_10px_rgba(229,9,20,0.8)]"
+                        className="h-full bg-stranger-red shadow-[0_0_10px_rgba(0, 86, 179,0.8)]"
                         style={{ width: `${(currentTime / duration) * 100}%` }}
                     />
                     <div 
@@ -253,7 +253,7 @@ const VideoPlayer = ({
                                 </div>
                                 <button 
                                     onClick={() => onSeek && onSeek(currentTimestamp)} 
-                                    className="text-[8px] font-orbitron tracking-widest text-gray-500 hover:text-white border border-gray-800 hover:border-white px-2 py-1 transition-all"
+                                    className="text-[8px] font-orbitron tracking-widest text-slate-600 hover:text-white border border-gray-800 hover:border-white px-2 py-1 transition-all"
                                     title="Protocol: Force Sync"
                                 >
                                     RE-SYNC
@@ -261,7 +261,7 @@ const VideoPlayer = ({
                             </div>
                         )}
                         
-                        <div className="text-xs font-mono flex items-center gap-2 text-gray-400">
+                        <div className="text-xs font-mono flex items-center gap-2 text-slate-700">
                             <span className="text-white">{formatTime(currentTime)}</span>
                             <span className="opacity-30">|</span>
                             <span>{formatTime(duration)}</span>
@@ -300,16 +300,16 @@ const VideoPlayer = ({
                     <div className="w-2 h-2 rounded-full bg-stranger-red animate-pulse"></div>
                     <span className="text-[8px] font-orbitron tracking-widest text-stranger-red">LIVE SIGNAL</span>
                 </div>
-                <span className="text-[8px] font-mono text-gray-500">REC: 00:00:00:00</span>
+                <span className="text-[8px] font-mono text-slate-600">REC: 00:00:00:00</span>
             </div>
 
             <div className="absolute top-4 right-4 pointer-events-none opacity-40 z-10">
-                <span className="text-[8px] font-mono text-gray-500 uppercase tracking-widest">{isBroadcaster ? 'Admin Terminal 01' : 'Receiver Unit 04'}</span>
+                <span className="text-[8px] font-mono text-slate-600 uppercase tracking-widest">{isBroadcaster ? 'Admin Terminal 01' : 'Receiver Unit 04'}</span>
             </div>
 
             {/* Retro Scanline Overlay */}
             <div className="absolute inset-0 pointer-events-none opacity-[0.07] z-30">
-                <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(255,0,0,0.06),rgba(0,255,0,0.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]"></div>
+                <div className="w-full h-full bg-[linear-gradient(rgba(18,16,16,0)_50%,rgba(0,0,0,0.25)_50%),linear-gradient(90deg,rgba(0, 86, 179,0.06),rgba(0,0, 86, 179.02),rgba(0,0,255,0.06))] bg-[length:100%_4px,3px_100%]"></div>
             </div>
         </div>
     );

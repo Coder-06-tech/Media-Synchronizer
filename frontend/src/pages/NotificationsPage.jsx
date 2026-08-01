@@ -7,10 +7,10 @@ import { Bell, User, Calendar, Trash2, CheckCircle, XCircle, Radio } from 'lucid
 
 /* ── helpers ── */
 const TYPE_META = {
-  friend_request: { icon: <User size={20} />, label: 'Connection Request' },
-  friend_accepted: { icon: <CheckCircle size={20} />, label: 'Connection Accepted' },
+  friend_request: { icon: <User size={20} />, label: 'Friend Request' },
+  friend_accepted: { icon: <CheckCircle size={20} />, label: 'Friend Request Accepted' },
   event_invite:   { icon: <Calendar size={20} />, label: 'Event Invitation' },
-  watch_invite:   { icon: <Radio size={20} />, label: 'Watch Invite', actionLabel: 'JOIN SESSION' },
+  watch_invite:   { icon: <Radio size={20} />, label: 'Watch Invite', actionLabel: 'JOIN ROOM' },
   system:         { icon: <Bell size={20} />, label: 'System' },
 };
 
@@ -104,19 +104,19 @@ const NotificationsPage = () => {
       {/* ── HEADER — always rendered immediately ── */}
       <header className={styles.header}>
         <div className={styles.titleBlock}>
-          <p className={styles.eyebrow}>// INCOMING TRANSMISSIONS</p>
+          <p className={styles.eyebrow}>// INCOMING NOTIFICATIONS</p>
           <h1 className={styles.title}>
-            SIGNALS
+            NOTIFICATIONS
             {unreadCount > 0 && (
               <span className={styles.badge}>{unreadCount}</span>
             )}
           </h1>
-          <p className={styles.subtitle}>Neural communication log</p>
+          <p className={styles.subtitle}>System notification log</p>
         </div>
         {notifications.length > 0 && !loading && (
           <button className={styles.clearBtn} onClick={clearAll}>
             <Trash2 size={14} />
-            Wipe Logs
+            Clear Notifications
           </button>
         )}
       </header>
@@ -131,8 +131,8 @@ const NotificationsPage = () => {
         {!loading && notifications.length === 0 && (
           <div className={styles.emptyState}>
             <Bell size={48} className={styles.emptyIcon} />
-            <p className={styles.emptyText}>NO ACTIVE TRANSMISSIONS</p>
-            <p className={styles.emptySubtext}>Your neural feed is clear</p>
+            <p className={styles.emptyText}>NO NEW NOTIFICATIONS</p>
+            <p className={styles.emptySubtext}>Your notification feed is clear</p>
           </div>
         )}
 

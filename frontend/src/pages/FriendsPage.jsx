@@ -85,7 +85,7 @@ const FriendsPage = () => {
       } else if (action === 'decline') {
         await api.put(`/friends/request/${targetId}/decline`);
       } else if (action === 'remove') {
-        if (window.confirm('Protocol: Sever this neural link permanently?')) {
+        if (window.confirm('Are you sure you want to remove this friend?')) {
           await api.delete(`/friends/${targetId}`);
         } else {
           return false;
@@ -95,7 +95,7 @@ const FriendsPage = () => {
       return true;
     } catch (error) {
       console.error(`Action ${action} failed:`, error);
-      alert(error.response?.data?.message || 'Protocol Failure');
+      alert(error.response?.data?.message || 'Error');
       return false;
     }
   };
@@ -103,7 +103,7 @@ const FriendsPage = () => {
   return (
     <div className={styles.pageContainer}>
       <header className={styles.header}>
-        <h1 className={styles.title}>NETWORK CONNECTIONS</h1>
+        <h1 className={styles.title}>FRIENDS NETWORK</h1>
         <div className={styles.tabContainer}>
           <button 
             className={`${styles.tabBtn} ${activeTab === 'links' ? styles.activeTab : ''}`}
@@ -130,7 +130,7 @@ const FriendsPage = () => {
       
       <main className={styles.mainContent}>
         {loading ? (
-          <div className={styles.loading}>&gt; ACCESSING ENCRYPTED FILES...</div>
+          <div className={styles.loading}>&gt; LOADING...</div>
         ) : (
           <>
             {activeTab === 'discovery' && (
@@ -139,7 +139,7 @@ const FriendsPage = () => {
                   <CarouselCards people={filteredPeople} />
                 ) : (
                   <div className={styles.emptyState}>
-                    <p>&gt; No new subjects found in the network.</p>
+                    <p>&gt; No new users found.</p>
                     <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '0.5rem' }}>Try registering additional accounts or check your connection.</p>
                   </div>
                 )}
@@ -160,7 +160,7 @@ const FriendsPage = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className={styles.emptyState}>NO INCOMING SIGNALS DETECTED</div>
+                  <div className={styles.emptyState}>NO INCOMING REQUESTS</div>
                 )}
               </div>
             )}
@@ -179,7 +179,7 @@ const FriendsPage = () => {
                     ))}
                   </div>
                 ) : (
-                  <div className={styles.emptyState}>NO ACTIVE NEURAL LINKS FOUND</div>
+                  <div className={styles.emptyState}>NO FRIENDS FOUND</div>
                 )}
               </div>
             )}

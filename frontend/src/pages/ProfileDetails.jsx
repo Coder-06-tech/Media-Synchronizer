@@ -66,11 +66,11 @@ const ProfileDetails = () => {
   const renderActionButton = () => {
     if (friendStatus === 'self') return null;
 
-    let text = 'ADD SUBJECT';
+    let text = 'ADD FRIEND';
     let icon = <UserPlus size={18} />;
     
     if (actionLoading) {
-      text = 'SYNCING...';
+      text = 'LOADING...';
     } else if (friendStatus === 'request_sent') {
       text = 'PENDING';
       icon = <Clock size={18} />;
@@ -78,7 +78,7 @@ const ProfileDetails = () => {
       text = 'ACCEPT REQUEST';
       icon = <Check size={18} />;
     } else if (friendStatus === 'friends') {
-      text = 'REMOVE SUBJECT';
+      text = 'REMOVE FRIEND';
       icon = <UserMinus size={18} />;
     }
 
@@ -96,14 +96,14 @@ const ProfileDetails = () => {
   };
 
   if (loading) {
-    return <div className={styles.loading}>&gt; DECRYPTING DOSSIER...</div>;
+    return <div className={styles.loading}>&gt; LOADING PROFILE...</div>;
   }
 
   if (!user) {
     return (
       <div className={styles.container}>
-        <h2 className={styles.error}>&gt; ERROR: SUBJECT NOT FOUND IN DATABASE</h2>
-        <Link to="/friends" className={styles.backLink}>Back to Grid</Link>
+        <h2 className={styles.error}>&gt; ERROR: USER NOT FOUND</h2>
+        <Link to="/friends" className={styles.backLink}>Back to Friends</Link>
       </div>
     );
   }
@@ -113,7 +113,7 @@ const ProfileDetails = () => {
 
   return (
     <div className={styles.container}>
-      <Link to="/friends" className={styles.backLink}>← Back to Network</Link>
+      <Link to="/friends" className={styles.backLink}>← Back to Friends</Link>
       
       <div className={styles.profileCard}>
         
@@ -128,8 +128,8 @@ const ProfileDetails = () => {
         
         <div className={styles.profileBody}>
           <div className={styles.infoSection}>
-            <h3>Dossier</h3>
-            <p>{user.bio || "No biographical data available for this subject. Surveillance ongoing."}</p>
+            <h3>Bio</h3>
+            <p>{user.bio || "No biography available."}</p>
           </div>
           
           <div className={styles.detailsGrid}>
