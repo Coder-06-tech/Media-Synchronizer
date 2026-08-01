@@ -43,11 +43,15 @@ const setupBroadcastEngine = async (io, socket) => {
         const isBroadcaster = typeof data === 'object' ? data.isBroadcaster : false;
         const userId = typeof data === 'object' ? data.userId : null;
 
+        if (userId) {
+            socket.userId = userId;
+        }
+
         socket.join(roomId);
         console.log(`[BROADCAST] User ${socket.id} joined room ${roomId} (broadcaster: ${isBroadcaster})`);
         
         // Notify other users in the room
-        socket.to(roomId).emit('user_joined', { userId: socket.id });
+        socket.to(roomId).emit('user_joined', { socketId: socket.id, userId: userId || socket.userId });
         
         // Return current state to NEW joining client (Initial Sync)
         const state = await getSession(roomId);
@@ -79,7 +83,9 @@ const setupBroadcastEngine = async (io, socket) => {
 
     socket.on('play_video', async (data) => {
         const { roomId, timestamp, url } = data;
-        await updateSession(roomId, { isPlaying: true, timestamp, videoUrl: url });
+        const updates = { isPlaying: true, timestamp };
+        if (url) updates.videoUrl = url;
+        await updateSession(roomId, updates);
         socket.to(roomId).emit('play_video', { timestamp, url });
     });
 

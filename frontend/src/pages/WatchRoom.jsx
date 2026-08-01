@@ -87,9 +87,6 @@ const WatchRoom = () => {
 
         return () => {
             Object.values(peerConnections.current).forEach(pc => pc.close());
-            if (localStream) {
-                localStream.getTracks().forEach(track => track.stop());
-            }
             const existing = document.getElementById('broadcaster-stream-source');
             if (existing) {
                 existing.pause();
@@ -101,34 +98,47 @@ const WatchRoom = () => {
         };
     }, [roomId, user._id, navigate]);
 
+    // Clean up localStream tracks properly on change or unmount
+    useEffect(() => {
+        return () => {
+            if (localStream) {
+                localStream.getTracks().forEach(track => track.stop());
+            }
+        };
+    }, [localStream]);
+
     // 2. WebRTC & Sync Logic
     useEffect(() => {
         if (!socket) return;
 
-        socket.on('user_joined', async ({ userId }) => {
-            addLog(`New subject detected: ${userId.slice(-6)}`, 'warning');
-            activePeers.current.add(userId);
-            setParticipants(prev => (Array.isArray(prev) && !prev.includes(userId)) ? [...prev, userId] : prev);
+        socket.on('user_joined', async ({ socketId, userId }) => {
+            addLog(`New subject detected: ${userId ? userId.slice(-6) : socketId.slice(-6)}`, 'warning');
+            activePeers.current.add(socketId);
+            if (userId) {
+                setParticipants(prev => (Array.isArray(prev) && !prev.includes(userId)) ? [...prev, userId] : prev);
+            }
             
             // If we are already broadcasting when someone joins, they will hear 'broadcaster_live' 
             // or they can request it manually. To be robust, let's treat join as a request if we're live.
             if (isBroadcaster && localStream) {
-                addLog(`Auto-uplink for new subject: ${userId.slice(-6)}`, 'success');
-                const pc = createPeerConnection(userId, localStream);
-                peerConnections.current[userId] = pc;
+                addLog(`Auto-uplink for new subject: ${socketId.slice(-6)}`, 'success');
+                const pc = createPeerConnection(socketId, localStream);
+                peerConnections.current[socketId] = pc;
                 const offer = await pc.createOffer();
                 await pc.setLocalDescription(offer);
-                socket.emit('offer', { roomId, offer, receiverId: userId });
+                socket.emit('offer', { roomId, offer, receiverId: socketId });
             }
         });
 
-        socket.on('user_left', ({ userId }) => {
-            addLog(`Subject disconnected: ${userId.slice(-6)}`, 'danger');
-            activePeers.current.delete(userId);
-            setParticipants(prev => prev.filter(id => id !== userId));
-            if (peerConnections.current[userId]) {
-                peerConnections.current[userId].close();
-                delete peerConnections.current[userId];
+        socket.on('user_left', ({ socketId, userId }) => {
+            addLog(`Subject disconnected: ${socketId.slice(-6)}`, 'danger');
+            activePeers.current.delete(socketId);
+            if (userId) {
+                setParticipants(prev => prev.filter(id => id !== userId));
+            }
+            if (peerConnections.current[socketId]) {
+                peerConnections.current[socketId].close();
+                delete peerConnections.current[socketId];
             }
         });
 

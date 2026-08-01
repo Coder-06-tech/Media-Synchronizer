@@ -5,6 +5,7 @@ const setupSignalingSockets = (io, socket) => {
   socket.on('setup', (userData) => {
     if (userData && userData._id) {
       socket.join(`user_${userData._id}`);
+      socket.userId = userData._id;
       socket.emit('connected');
     }
   });
@@ -44,7 +45,7 @@ const setupSignalingSockets = (io, socket) => {
 
   socket.on('disconnecting', () => {
     socket.rooms.forEach(roomId => {
-        socket.to(roomId).emit('user_left', { userId: socket.id });
+        socket.to(roomId).emit('user_left', { socketId: socket.id, userId: socket.userId });
     });
   });
 };
