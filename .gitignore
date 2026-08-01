@@ -58,3 +58,7 @@ backend/users_db.json
 .parcel-cache/
 .next/
 .nuxt/
+
+# Database seeds and scratch scripts
+backend/seed_users_new.js
+backend/test_potential.js
